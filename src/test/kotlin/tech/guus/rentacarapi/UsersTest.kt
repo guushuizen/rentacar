@@ -1,26 +1,47 @@
 package tech.guus.rentacarapi
 
+import com.typesafe.config.ConfigFactory
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.request.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
+import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import tech.guus.rentacarapi.models.CreateUserRequest
+import tech.guus.rentacarapi.requests.CreateUserRequest
+import tech.guus.rentacarapi.requests.LoginRequest
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+
 class UsersTest {
 
+    fun setupTestApplication(block: suspend ApplicationTestBuilder.() -> Unit) {
+        testApplication(EmptyCoroutineContext) {
+            environment {
+                config = ApplicationConfig("application.test.conf")
+            }
+
+            application {
+                init(HoconApplicationConfig(ConfigFactory.load("application.test.conf")))
+            }
+
+            block()
+        }
+    }
+
     @Test
-    fun testRoot() = testApplication {
+    fun testRoot() = setupTestApplication {
         val response = client.get("/users")
         assertEquals(HttpStatusCode.OK, response.status)
     }
 
 
     @Test
-    fun testRegistration() = testApplication {
-        val client = createClient {
+    fun testRegistration() = setupTestApplication {
+        var client = createClient {
             install(ContentNegotiation) {
                 jackson()
             }
@@ -28,20 +49,53 @@ class UsersTest {
 
         val response = client.post("/users") {
             contentType(ContentType.Application.Json)
-            setBody(CreateUserRequest(
-                "Guus",
-                "Huizen",
-                "guus@guus.tech",
-                "foo",
-                "Hogeschoollaan",
-                "1",
-                "Breda",
-                "NL",
-                "123.000",
-                "10.000"
-            ))
+            setBody(
+                CreateUserRequest(
+                    "Guus",
+                    "Huizen",
+                    "guus@guus.tech",
+                    "foo",
+                    "Hogeschoollaan",
+                    "1",
+                    "Breda",
+                    "NL",
+                    "123.000",
+                    10.0F,
+                    10.0F
+                )
+            )
         }
 
-        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(HttpStatusCode.Created, response.status)
+
+        client = createClient {
+            install(ContentNegotiation) {
+                jackson()
+            }
+
+            install(Auth) {
+                basic {
+                    credentials {
+                        BasicAuthCredentials(username = "guus@guus.tech", password = "foo")
+                    }
+                }
+            }
+        }
+
+        val testLoginResponse = client.get("/users")
+        assertEquals(HttpStatusCode.OK, testLoginResponse.status)
+    }
+
+    @Test
+    fun testUnauthenticatedRoute() = setupTestApplication {
+        val client = createClient {
+            install(ContentNegotiation) {
+                jackson()
+            }
+        }
+
+        val response = client.get("/users")
+
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 }

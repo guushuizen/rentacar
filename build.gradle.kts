@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val ktorVersion = "2.3.4"
 val logbackVersion = "1.4.11"
-val ktormVersion = "3.6.0"
 val kotlinVersion = "1.9.10"
+val exposed_version = "0.41.1"
 
 plugins {
     application
@@ -39,19 +39,26 @@ buildscript {
 }
 
 dependencies {
+    implementation("org.flywaydb:flyway-mysql:9.20.0")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("org.ktorm:ktorm-core:$ktormVersion")
-    implementation("org.ktorm:ktorm-jackson:$ktormVersion")
+
+    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
+
     implementation("io.ktor:ktor-server-request-validation:$ktorVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("io.insert-koin:koin-ktor:3.3.0")
-    implementation("mysql:mysql-connector-java:5.1.6")
+    implementation("mysql:mysql-connector-java:8.0.28")
     implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
+    implementation("io.ktor:ktor-client-auth:$ktorVersion")
 
+    testImplementation("org.xerial:sqlite-jdbc:3.43.0.0")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")

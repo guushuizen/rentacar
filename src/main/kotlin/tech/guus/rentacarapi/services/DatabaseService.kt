@@ -1,15 +1,38 @@
 package tech.guus.rentacarapi.services
 
-import org.ktorm.database.Database
+import com.typesafe.config.ConfigObject
 import io.ktor.server.application.*
-import tech.guus.rentacarapi.models.User
+import io.ktor.server.config.*
+import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.transaction
+import tech.guus.rentacarapi.models.Users
+import java.sql.DriverManager
 
-class DatabaseService(environment: ApplicationEnvironment) {
-    var database: Database = Database.connect(
-        url =  environment.config.propertyOrNull("ktor.database.url")!!.getString(),
-        driver = environment.config.propertyOrNull("ktor.database.driver")!!.getString(),
-        user = environment.config.propertyOrNull("ktor.database.username")!!.getString(),
-        password = environment.config.propertyOrNull("ktor.database.password")!!.getString(),
+class DatabaseService(config: HoconApplicationConfig) {
+    private val driver = config.propertyOrNull("ktor.database.driver")!!.getString()
+    private val url = config.propertyOrNull("ktor.database.url")!!.getString()
+    private val username = config.propertyOrNull("ktor.database.username")!!.getString()
+    private val password = config.propertyOrNull("ktor.database.password")!!.getString()
+
+    private val database: Database = Database.connect(
+        url =  url,
+        driver = driver,
+        user = username,
+        password = password,
     )
 
+    init {
+        // Required to keep in memory database alive during tests
+        val keepAliveConnection = DriverManager.getConnection(url, username, password)
+
+        transaction(database) {
+            SchemaUtils.create(Users)
+        }
+    }
+
+    suspend fun <T> dbQuery(block: suspend () -> T): T =
+        newSuspendedTransaction(Dispatchers.IO, database) { block() }
 }
