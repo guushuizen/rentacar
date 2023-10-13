@@ -16,9 +16,11 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import org.koin.ktor.ext.getKoin
 import org.koin.ktor.plugin.koin
-import tech.guus.rentacarapi.controllers.userRoutes
+import tech.guus.rentacarapi.models.User
+import tech.guus.rentacarapi.models.Users
 import tech.guus.rentacarapi.repositories.UserRepository
 import tech.guus.rentacarapi.repositories.UserRepositoryImpl
+import tech.guus.rentacarapi.routes.userRoutes
 import tech.guus.rentacarapi.services.DatabaseService
 
 
@@ -30,11 +32,11 @@ fun main() {
 
 
 fun Application.init(config: HoconApplicationConfig) {
+    val userRepository = UserRepositoryImpl()
     koin {
-        val databaseService = DatabaseService(config)
+        DatabaseService.init(config)
         val dependencyContainer = org.koin.dsl.module {
-            single<DatabaseService> { databaseService }
-            single<UserRepository> { UserRepositoryImpl(databaseService) }
+            single<UserRepository> { userRepository }
         }
 
         modules(dependencyContainer)
@@ -44,8 +46,7 @@ fun Application.init(config: HoconApplicationConfig) {
         basic("auth-basic") {
             realm = "Access to the application"
             validate { credentials ->
-                val user = this@init.getKoin().get<UserRepository>().attemptLogin(credentials.name, credentials.password)
-                user
+                userRepository.attemptLogin(credentials.name, credentials.password)
             }
         }
     }

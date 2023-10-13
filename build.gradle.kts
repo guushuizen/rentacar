@@ -58,7 +58,7 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
     implementation("io.ktor:ktor-client-auth:$ktorVersion")
 
-    testImplementation("org.xerial:sqlite-jdbc:3.43.0.0")
+    testImplementation("com.h2database:h2:2.1.214")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")

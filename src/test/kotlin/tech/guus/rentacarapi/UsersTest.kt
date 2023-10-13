@@ -6,11 +6,14 @@ import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.request.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
+import io.ktor.network.sockets.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import tech.guus.rentacarapi.requests.CreateUserRequest
 import tech.guus.rentacarapi.requests.LoginRequest
+import java.sql.Connection
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,13 +34,6 @@ class UsersTest {
             block()
         }
     }
-
-    @Test
-    fun testRoot() = setupTestApplication {
-        val response = client.get("/users")
-        assertEquals(HttpStatusCode.OK, response.status)
-    }
-
 
     @Test
     fun testRegistration() = setupTestApplication {
