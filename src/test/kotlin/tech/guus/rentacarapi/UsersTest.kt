@@ -11,11 +11,13 @@ import io.ktor.serialization.jackson.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.junit.jupiter.api.BeforeEach
 import org.koin.ktor.ext.inject
 import tech.guus.rentacarapi.repositories.UserRepository
 import tech.guus.rentacarapi.repositories.UserRepositoryImpl
 import tech.guus.rentacarapi.requests.CreateUserRequest
 import tech.guus.rentacarapi.requests.LoginRequest
+import tech.guus.rentacarapi.services.DatabaseService
 import java.sql.Connection
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Ignore
@@ -88,12 +90,11 @@ class UsersTest {
 
 
     @Test
-//    @Ignore("Exception handling doesn't seem to work properly inside tests, it works when manually testing, though.")
     fun testNoDuplicateEmailAddresses() = setupTestApplication {
         val request = CreateUserRequest(
             "Guus",
             "Huizen",
-            "guus@guus.tech",
+            "foo@guus.tech",
             "foo",
             "Hogeschoollaan",
             "1",
