@@ -13,8 +13,3 @@ data class CreateUserRequest(
     val latitude: Float,
     val longitude: Float
 )
-
-data class LoginRequest(
-    val emailAddress: String,
-    val password: String
-)

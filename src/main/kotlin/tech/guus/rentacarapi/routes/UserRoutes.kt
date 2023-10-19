@@ -28,7 +28,7 @@ fun Route.userRoutes() {
         }
 
         post {
-            val requestBody: CreateUserRequest = call.receive<CreateUserRequest>()
+            val requestBody = call.receive<CreateUserRequest>()
 
             try {
                 val user = userRepository.insert(requestBody)

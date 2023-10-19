@@ -6,21 +6,11 @@ import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.request.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
-import io.ktor.network.sockets.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.junit.jupiter.api.BeforeEach
-import org.koin.ktor.ext.inject
-import tech.guus.rentacarapi.repositories.UserRepository
-import tech.guus.rentacarapi.repositories.UserRepositoryImpl
 import tech.guus.rentacarapi.requests.CreateUserRequest
-import tech.guus.rentacarapi.requests.LoginRequest
-import tech.guus.rentacarapi.services.DatabaseService
-import java.sql.Connection
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
