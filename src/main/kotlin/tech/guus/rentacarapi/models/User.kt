@@ -15,7 +15,7 @@ object Users: IdTable<UUID>() {
 
     val firstName = varchar("first_name", 64)
     val lastName = varchar("last_name", 64)
-    val emailAddress = varchar("email_address", 64)
+    val emailAddress = varchar("email_address", 64).uniqueIndex()
     val password = varchar("password", 128)
     val streetName = varchar("street_name", 64)
     val houseNumber = varchar("house_number", 64)

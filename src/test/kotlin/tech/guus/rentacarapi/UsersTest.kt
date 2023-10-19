@@ -11,10 +11,14 @@ import io.ktor.serialization.jackson.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.koin.ktor.ext.inject
+import tech.guus.rentacarapi.repositories.UserRepository
+import tech.guus.rentacarapi.repositories.UserRepositoryImpl
 import tech.guus.rentacarapi.requests.CreateUserRequest
 import tech.guus.rentacarapi.requests.LoginRequest
 import java.sql.Connection
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -80,6 +84,41 @@ class UsersTest {
 
         val testLoginResponse = client.get("/users")
         assertEquals(HttpStatusCode.OK, testLoginResponse.status)
+    }
+
+
+    @Test
+//    @Ignore("Exception handling doesn't seem to work properly inside tests, it works when manually testing, though.")
+    fun testNoDuplicateEmailAddresses() = setupTestApplication {
+        val request = CreateUserRequest(
+            "Guus",
+            "Huizen",
+            "guus@guus.tech",
+            "foo",
+            "Hogeschoollaan",
+            "1",
+            "Breda",
+            "NL",
+            "123.000",
+            10.0F,
+            10.0F
+        )
+
+        val client = createClient {
+            install(ContentNegotiation) {
+                jackson()
+            }
+        }
+
+        assertEquals(HttpStatusCode.Created, client.post("/users") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.status)
+
+        assertEquals(HttpStatusCode.Conflict, client.post("/users") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.status)
     }
 
     @Test
