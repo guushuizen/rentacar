@@ -8,13 +8,15 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import tech.guus.rentacarapi.models.Cars
 import tech.guus.rentacarapi.models.Users
 import java.sql.Connection
 import java.sql.DriverManager
 
 object DatabaseService {
     val tables = setOf(
-        Users
+        Users,
+        Cars
     )
 
     var database: Database? = null
@@ -48,8 +50,8 @@ object DatabaseService {
 
     fun resetDatabase() {
         transaction(database) {
-            tables.forEach { SchemaUtils.drop(it) }
-            tables.forEach { SchemaUtils.create(it) }
+            SchemaUtils.drop(*tables.toTypedArray())
+            SchemaUtils.create(*tables.toTypedArray())
         }
     }
 }

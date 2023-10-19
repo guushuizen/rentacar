@@ -4,6 +4,8 @@ val ktorVersion = "2.3.4"
 val logbackVersion = "1.4.11"
 val kotlinVersion = "1.9.10"
 val exposed_version = "0.41.1"
+val koinVersion = "3.3.0"
+val mockkVersion = "1.13.8"
 
 plugins {
     application
@@ -45,6 +47,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
@@ -53,10 +56,11 @@ dependencies {
 
     implementation("io.ktor:ktor-server-request-validation:$ktorVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-    implementation("io.insert-koin:koin-ktor:3.3.0")
+    implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("mysql:mysql-connector-java:8.0.28")
     implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
     implementation("io.ktor:ktor-client-auth:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio-jvm:2.3.4")
 
     testImplementation("com.h2database:h2:2.1.214")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
@@ -73,6 +77,6 @@ tasks.withType<KotlinCompile> {
     }
 }
 
-tasks.withType<Test> {
+tasks.test {
     useJUnitPlatform()
 }

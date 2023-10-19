@@ -20,7 +20,7 @@ fun Route.userRoutes() {
     val userRepository by inject<UserRepository>()
 
     route("/users") {
-        authenticate("auth-basic") {
+        authenticate {
             get {
                 val user = call.principal<User>()!!
                 call.respond(UserDTO(user))

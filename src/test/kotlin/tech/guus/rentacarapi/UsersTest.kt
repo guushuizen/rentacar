@@ -1,6 +1,7 @@
 package tech.guus.rentacarapi
 
 import com.typesafe.config.ConfigFactory
+import io.ktor.client.call.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.request.*
@@ -9,40 +10,23 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import tech.guus.rentacarapi.models.User
+import tech.guus.rentacarapi.models.UserDTO
+import tech.guus.rentacarapi.models.Users
 import tech.guus.rentacarapi.requests.CreateUserRequest
 import tech.guus.rentacarapi.services.DatabaseService
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 
 class UsersTest {
 
-    fun setupTestApplication(block: suspend ApplicationTestBuilder.() -> Unit) {
-        testApplication(EmptyCoroutineContext) {
-            environment {
-                config = ApplicationConfig("application.test.conf")
-            }
-
-            application {
-                init(HoconApplicationConfig(ConfigFactory.load("application.test.conf")))
-            }
-
-            block()
-
-            DatabaseService.resetDatabase()
-        }
-    }
-
     @Test
     fun testRegistration() = setupTestApplication {
-        var client = createClient {
-            install(ContentNegotiation) {
-                jackson()
-            }
-        }
-
-        val response = client.post("/users") {
+        val response = createUnauthenticatedClient().post("/users") {
             contentType(ContentType.Application.Json)
             setBody(
                 CreateUserRequest(
@@ -63,24 +47,15 @@ class UsersTest {
 
         assertEquals(HttpStatusCode.Created, response.status)
 
-        client = createClient {
-            install(ContentNegotiation) {
-                jackson()
-            }
-
-            install(Auth) {
-                basic {
-                    credentials {
-                        BasicAuthCredentials(username = "guus@guus.tech", password = "foo")
-                    }
-                }
-            }
+        transaction(DatabaseService.database) {
+            assertNotNull(User.find { Users.emailAddress eq "guus@guus.tech" }.firstOrNull())
         }
 
-        val testLoginResponse = client.get("/users")
+        val testLoginResponse = createAuthenticatedClient().get("/users")
         assertEquals(HttpStatusCode.OK, testLoginResponse.status)
+        val body = testLoginResponse.body() as UserDTO
+        assertEquals("Guus", body.firstName)
     }
-
 
     @Test
     fun testNoDuplicateEmailAddresses() = setupTestApplication {
@@ -98,18 +73,12 @@ class UsersTest {
             10.0F
         )
 
-        val client = createClient {
-            install(ContentNegotiation) {
-                jackson()
-            }
-        }
-
-        assertEquals(HttpStatusCode.Created, client.post("/users") {
+        assertEquals(HttpStatusCode.Created, createUnauthenticatedClient().post("/users") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.status)
 
-        assertEquals(HttpStatusCode.Conflict, client.post("/users") {
+        assertEquals(HttpStatusCode.Conflict, createUnauthenticatedClient().post("/users") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.status)
@@ -117,13 +86,7 @@ class UsersTest {
 
     @Test
     fun testUnauthenticatedRoute() = setupTestApplication {
-        val client = createClient {
-            install(ContentNegotiation) {
-                jackson()
-            }
-        }
-
-        val response = client.get("/users")
+        val response = createUnauthenticatedClient().get("/users")
 
         assertEquals(HttpStatusCode.Unauthorized, response.status)
     }

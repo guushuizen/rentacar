@@ -16,9 +16,11 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import org.koin.ktor.plugin.koin
 import tech.guus.rentacarapi.repositories.UserRepository
-import tech.guus.rentacarapi.repositories.UserRepositoryImpl
+import tech.guus.rentacarapi.requests.CreateCarRequest
+import tech.guus.rentacarapi.routes.carRoutes
 import tech.guus.rentacarapi.routes.userRoutes
 import tech.guus.rentacarapi.services.DatabaseService
+import tech.guus.rentacarapi.services.LicensePlateService
 
 
 fun main() {
@@ -29,18 +31,19 @@ fun main() {
 
 
 fun Application.init(config: HoconApplicationConfig) {
-    val userRepository = UserRepositoryImpl()
+    val userRepository = UserRepository()
     DatabaseService.init(config)
     koin {
         val dependencyContainer = org.koin.dsl.module {
-            single<UserRepository> { userRepository }
+            single { userRepository }
+            single { LicensePlateService() }
         }
 
         modules(dependencyContainer)
     }
 
     install(Authentication) {
-        basic("auth-basic") {
+        basic {
             realm = "Access to the application"
             validate { credentials ->
                 userRepository.attemptLogin(credentials.name, credentials.password)
@@ -54,6 +57,7 @@ fun Application.init(config: HoconApplicationConfig) {
 fun Application.configureRouting() {
     routing {
         userRoutes()
+        carRoutes()
     }
 }
 
@@ -63,7 +67,15 @@ fun Application.configureSerialization() {
             call.respond(HttpStatusCode.BadRequest, cause.reasons.joinToString())
         }
     }
-    install(RequestValidation)
+    install(RequestValidation) {
+        validate<CreateCarRequest> { request ->
+            if (request.licensePlate.count() != 6) {
+                ValidationResult.Invalid("De kentekenplaat is altijd 6 tekens lang.")
+            } else {
+                ValidationResult.Valid
+            }
+        }
+    }
     install(ContentNegotiation) {
         jackson {
             registerKotlinModule()

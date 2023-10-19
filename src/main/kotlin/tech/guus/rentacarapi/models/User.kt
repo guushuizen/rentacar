@@ -1,18 +1,16 @@
 package tech.guus.rentacarapi.models
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.ktor.server.auth.*
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Column
 import java.util.UUID
 
 
-object Users: IdTable<UUID>() {
-    override val id: Column<EntityID<UUID>> = uuid("uuid").entityId()
-
+object Users: UUIDTable() {
     val firstName = varchar("first_name", 64)
     val lastName = varchar("last_name", 64)
     val emailAddress = varchar("email_address", 64).uniqueIndex()
@@ -26,7 +24,6 @@ object Users: IdTable<UUID>() {
     val longitude = float("longitude")
 }
 
-@JsonIgnoreProperties(value = ["Users", "table", "columns", "klass"])
 class User(id: EntityID<UUID>): Entity<UUID>(id), Principal {
     companion object : EntityClass<UUID, User>(Users)
 
