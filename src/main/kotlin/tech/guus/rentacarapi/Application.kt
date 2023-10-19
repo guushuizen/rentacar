@@ -14,10 +14,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
-import org.koin.ktor.ext.getKoin
 import org.koin.ktor.plugin.koin
-import tech.guus.rentacarapi.models.User
-import tech.guus.rentacarapi.models.Users
 import tech.guus.rentacarapi.repositories.UserRepository
 import tech.guus.rentacarapi.repositories.UserRepositoryImpl
 import tech.guus.rentacarapi.routes.userRoutes
