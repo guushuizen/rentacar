@@ -12,8 +12,6 @@ import tech.guus.rentacarapi.services.DatabaseService.dbQuery
 import java.util.*
 
 interface UserRepository {
-    suspend fun getAll(): List<User>
-
     suspend fun findOne(uuid: String): User?
 
     suspend fun attemptLogin(emailAddress: String, password: String): User?
@@ -22,10 +20,6 @@ interface UserRepository {
 }
 
 class UserRepositoryImpl : UserRepository {
-    override suspend fun getAll(): List<User> = dbQuery {
-        User.all().toList()
-    }
-
     override suspend fun findOne(uuid: String): User? = dbQuery {
         User.findById(UUID.fromString(uuid))
     }
