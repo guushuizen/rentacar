@@ -10,6 +10,7 @@ import io.ktor.serialization.jackson.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import tech.guus.rentacarapi.requests.CreateUserRequest
+import tech.guus.rentacarapi.services.DatabaseService
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,6 +29,8 @@ class UsersTest {
             }
 
             block()
+
+            DatabaseService.resetDatabase()
         }
     }
 
@@ -84,7 +87,7 @@ class UsersTest {
         val request = CreateUserRequest(
             "Guus",
             "Huizen",
-            "foo@guus.tech",
+            "guus@guus.tech",
             "foo",
             "Hogeschoollaan",
             "1",

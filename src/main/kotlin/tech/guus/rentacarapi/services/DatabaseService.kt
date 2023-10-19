@@ -3,6 +3,7 @@ package tech.guus.rentacarapi.services
 import io.ktor.server.config.*
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.Schema
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -12,6 +13,12 @@ import java.sql.Connection
 import java.sql.DriverManager
 
 object DatabaseService {
+    val tables = setOf(
+        Users
+    )
+
+    var database: Database? = null
+
     fun init(config: HoconApplicationConfig) {
         TransactionManager.manager.defaultIsolationLevel =
             Connection.TRANSACTION_READ_UNCOMMITTED
@@ -21,8 +28,8 @@ object DatabaseService {
         val username = config.propertyOrNull("ktor.database.username")!!.getString()
         val password = config.propertyOrNull("ktor.database.password")!!.getString()
 
-        val database: Database = Database.connect(
-            url =  url,
+        database = Database.connect(
+            url = url,
             driver = driver,
             user = username,
             password = password,
@@ -32,10 +39,17 @@ object DatabaseService {
         val keepAliveConnection = DriverManager.getConnection(url, username, password)
 
         transaction(database) {
-            SchemaUtils.create(Users)
+            tables.forEach { SchemaUtils.create(it) }
         }
     }
 
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
+
+    fun resetDatabase() {
+        transaction(database) {
+            tables.forEach { SchemaUtils.drop(it) }
+            tables.forEach { SchemaUtils.create(it) }
+        }
+    }
 }

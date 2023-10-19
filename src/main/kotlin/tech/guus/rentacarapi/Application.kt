@@ -30,8 +30,8 @@ fun main() {
 
 fun Application.init(config: HoconApplicationConfig) {
     val userRepository = UserRepositoryImpl()
+    DatabaseService.init(config)
     koin {
-        DatabaseService.init(config)
         val dependencyContainer = org.koin.dsl.module {
             single<UserRepository> { userRepository }
         }
