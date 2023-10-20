@@ -10,8 +10,11 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import tech.guus.rentacarapi.models.*
 import tech.guus.rentacarapi.requests.CreateUserRequest
 import tech.guus.rentacarapi.services.DatabaseService
+import java.util.*
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertEquals
 
@@ -101,4 +104,18 @@ fun setupTestApplicationWithUser(block: suspend ApplicationTestBuilder.() -> Uni
     assertEquals(HttpStatusCode.OK, testLoginResponse.status)
 
     block()
+}
+
+fun createDummyCar(): Car {
+    val user: User = transaction { User.find { Users.emailAddress eq "guus@guus.tech" }.first() }
+
+    return transaction { Car.new(UUID.randomUUID()) {
+        this.owner = user
+        this.brandName = "VOLKSWAGEN"
+        this.modelName = "SCIROCCO"
+        this.color = "GRIJS"
+        this.licensePlate = "L369JR"
+        this.status = CarStatus.DRAFT
+        this.fuelType = FuelType.ICE
+    } }
 }

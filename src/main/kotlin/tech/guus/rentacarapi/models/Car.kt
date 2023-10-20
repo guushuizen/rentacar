@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
+import tech.guus.rentacarapi.models.User.Companion.referrersOn
 import java.util.*
 
 enum class FuelType(val internalName: String) {
@@ -29,7 +30,7 @@ enum class CarStatus(val internalName: String) {
 }
 
 
-class Car(id: EntityID<UUID>): Entity<UUID>(id), Principal {
+class Car(id: EntityID<UUID>): Entity<UUID>(id) {
     companion object : EntityClass<UUID, Car>(Cars)
 
     var owner by User referencedOn Cars.ownerUuid
@@ -40,6 +41,8 @@ class Car(id: EntityID<UUID>): Entity<UUID>(id), Principal {
     var fuelType by Cars.fuelType
     var ratePerHour by Cars.ratePerHour
     var status by Cars.status
+
+    val photos by CarPhoto referrersOn CarPhotos.carUuid
 }
 
 

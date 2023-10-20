@@ -17,6 +17,7 @@ import io.ktor.server.response.*
 import org.koin.ktor.plugin.koin
 import tech.guus.rentacarapi.repositories.UserRepository
 import tech.guus.rentacarapi.requests.CreateCarRequest
+import tech.guus.rentacarapi.routes.carPhotoRoutes
 import tech.guus.rentacarapi.routes.carRoutes
 import tech.guus.rentacarapi.routes.userRoutes
 import tech.guus.rentacarapi.services.DatabaseService
@@ -58,6 +59,7 @@ fun Application.configureRouting() {
     routing {
         userRoutes()
         carRoutes()
+        carPhotoRoutes()
     }
 }
 

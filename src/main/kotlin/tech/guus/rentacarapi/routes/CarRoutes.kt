@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.async
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -28,11 +29,12 @@ fun Route.carRoutes() {
                 val existingCar = transaction {
                     return@transaction Cars.select {Cars.licensePlate eq request.licensePlate}.firstOrNull()
                 }
+
                 if (existingCar != null) {
                     return@post call.respond(HttpStatusCode.Conflict)
                 }
 
-                val licensePlateInfo = licensePlateService.getLicensePlateDetails(request.licensePlate)
+                val licensePlateInfo = async { licensePlateService.getLicensePlateDetails(request.licensePlate) }.await()
                     ?: return@post call.respond(HttpStatusCode.BadRequest)
 
                 try {
@@ -52,7 +54,7 @@ fun Route.carRoutes() {
                     if (exc.cause is SQLIntegrityConstraintViolationException || exc.cause is BatchUpdateException ) {
                         return@post call.respond(
                             HttpStatusCode.Conflict,
-                            "Someone has already registered with this e-mail address"
+                            "Someone has already registered this license plate."
                         )
                     } else {
                         return@post call.respond(HttpStatusCode.InternalServerError)
