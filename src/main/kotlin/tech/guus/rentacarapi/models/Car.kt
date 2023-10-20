@@ -58,6 +58,7 @@ object Cars: UUIDTable() {
 }
 
 data class CarDTO(
+    val id: UUID,
     val ownerName: String,
     val brandName: String,
     val modelName: String,
@@ -71,6 +72,7 @@ data class CarDTO(
     val photos: List<String>,
 ) {
     constructor(car: Car): this(
+        id = car.id.value,
         ownerName = car.owner.firstName + " " + car.owner.lastName,
         brandName = car.brandName,
         modelName = car.modelName,

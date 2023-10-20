@@ -23,7 +23,7 @@ object DatabaseService {
 
     var database: Database? = null
 
-    fun init(config: HoconApplicationConfig) {
+    fun init(config: ApplicationConfig) {
         TransactionManager.manager.defaultIsolationLevel =
             Connection.TRANSACTION_READ_UNCOMMITTED
 

@@ -57,13 +57,15 @@ fun Route.carPhotoRoutes() {
             transaction {
                 car.photos.forEach { it.delete() }
 
-                newPhotos.forEach { CarPhoto.new(UUID.randomUUID()) {
-                    this.car = car
-                    this.index = it.first
-                    this.path = it.second
-                } }
+                newPhotos.forEach {
+                    CarPhoto.new(UUID.randomUUID()) {
+                        this.car = car
+                        this.index = it.first
+                        this.path = it.second
+                    }
+                }
 
-                oldPhotos.forEach { File(it.path).delete() }
+                oldPhotos.forEach { File("$uploadPath/${it.path}").delete() }
             }
 
             return@post call.respond(HttpStatusCode.OK)

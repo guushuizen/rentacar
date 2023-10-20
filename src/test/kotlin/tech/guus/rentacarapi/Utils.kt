@@ -25,7 +25,7 @@ fun setupTestApplication(block: suspend ApplicationTestBuilder.() -> Unit) {
         }
 
         application {
-            init(HoconApplicationConfig(ConfigFactory.load("application.test.conf")))
+            module()
         }
 
         block()

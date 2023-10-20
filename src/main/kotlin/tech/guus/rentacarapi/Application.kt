@@ -26,14 +26,11 @@ import tech.guus.rentacarapi.services.LicensePlateService
 import java.io.File
 
 
-fun main() {
-    embeddedServer(Netty, port = 8080) {
-        init(HoconApplicationConfig(ConfigFactory.load("application.conf")))
-    }.start(wait = true)
-}
+fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 
-fun Application.init(config: HoconApplicationConfig) {
+fun Application.module() {
+    val config = this.environment.config
     val userRepository = UserRepository()
     DatabaseService.init(config)
     koin {
@@ -57,7 +54,7 @@ fun Application.init(config: HoconApplicationConfig) {
     configureRouting(config)
     configureSerialization()
 }
-fun Application.configureRouting(config: HoconApplicationConfig) {
+fun Application.configureRouting(config: ApplicationConfig) {
     routing {
         userRoutes()
         carRoutes()
