@@ -8,6 +8,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.config.*
 import io.ktor.server.engine.*
+import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
@@ -22,6 +23,7 @@ import tech.guus.rentacarapi.routes.carRoutes
 import tech.guus.rentacarapi.routes.userRoutes
 import tech.guus.rentacarapi.services.DatabaseService
 import tech.guus.rentacarapi.services.LicensePlateService
+import java.io.File
 
 
 fun main() {
@@ -60,6 +62,8 @@ fun Application.configureRouting() {
         userRoutes()
         carRoutes()
         carPhotoRoutes()
+
+        staticFiles("/uploads", File("uploads"))
     }
 }
 

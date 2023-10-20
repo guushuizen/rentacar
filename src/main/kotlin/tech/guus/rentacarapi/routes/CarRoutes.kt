@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.ktor.ext.inject
 import tech.guus.rentacarapi.models.*
 import tech.guus.rentacarapi.requests.CreateCarRequest
+import tech.guus.rentacarapi.requests.ListCarResponse
 import tech.guus.rentacarapi.requests.UpdateCarRequest
 import tech.guus.rentacarapi.services.LicensePlateService
 import java.sql.BatchUpdateException
@@ -24,20 +25,30 @@ import java.util.*
 fun Route.carRoutes() {
     val licensePlateService by inject<LicensePlateService>()
     route("cars") {
+        get {
+            return@get call.respond(ListCarResponse(transaction {
+                return@transaction Car.find {
+                    Cars.status eq CarStatus.ACTIVE
+                }.map { CarDTO(it) }
+            }
+            ))
+        }
+
         authenticate {
             post {
                 val request = call.receive<CreateCarRequest>()
 
                 val existingCar = transaction {
-                    return@transaction Cars.select {Cars.licensePlate eq request.licensePlate}.firstOrNull()
+                    return@transaction Cars.select { Cars.licensePlate eq request.licensePlate }.firstOrNull()
                 }
 
                 if (existingCar != null) {
                     return@post call.respond(HttpStatusCode.Conflict)
                 }
 
-                val licensePlateInfo = async { licensePlateService.getLicensePlateDetails(request.licensePlate) }.await()
-                    ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val licensePlateInfo =
+                    async { licensePlateService.getLicensePlateDetails(request.licensePlate) }.await()
+                        ?: return@post call.respond(HttpStatusCode.BadRequest)
 
                 try {
                     return@post call.respond(HttpStatusCode.Created, transaction {
@@ -53,7 +64,7 @@ fun Route.carRoutes() {
                         CarDTO(car)
                     })
                 } catch (exc: ExposedSQLException) {
-                    if (exc.cause is SQLIntegrityConstraintViolationException || exc.cause is BatchUpdateException ) {
+                    if (exc.cause is SQLIntegrityConstraintViolationException || exc.cause is BatchUpdateException) {
                         return@post call.respond(
                             HttpStatusCode.Conflict,
                             "Someone has already registered this license plate."

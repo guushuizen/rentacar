@@ -3,11 +3,13 @@ package tech.guus.rentacarapi
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.guus.rentacarapi.models.*
 import tech.guus.rentacarapi.requests.CreateCarRequest
+import tech.guus.rentacarapi.requests.ListCarResponse
 import tech.guus.rentacarapi.requests.UpdateCarRequest
 import tech.guus.rentacarapi.services.DatabaseService
 import java.io.File
@@ -179,6 +181,10 @@ class CarsTest {
     fun testMarkCarAsActive() = setupTestApplicationWithUser {
         val car = createDummyCar()
         val authenticatedClient = createAuthenticatedClient()
+        val photoBytes = object {}.javaClass.classLoader.getResourceAsStream("car.jpg")!!.readAllBytes()
+
+        var listResponse = authenticatedClient.get("/cars").body<ListCarResponse>()
+        assertEquals(0, listResponse.cars.count())
 
         authenticatedClient.post("/cars/${car.id}/photos") {
             setBody(
@@ -186,7 +192,7 @@ class CarsTest {
                     formData {
                         append(
                             "image[]",
-                            object {}.javaClass.classLoader.getResourceAsStream("car.jpg")!!.readAllBytes(),
+                            photoBytes,
                             Headers.build {
                                 append(HttpHeaders.ContentType, "image/jpeg")
                                 append(HttpHeaders.ContentDisposition, "filename=\"car.jpeg\"")
@@ -217,6 +223,17 @@ class CarsTest {
                 }.firstOrNull()
             )
         }
+
+        val unauthenticatedClient = createUnauthenticatedClient()
+        listResponse = unauthenticatedClient.get("/cars").body<ListCarResponse>()
+        assertEquals(1, listResponse.cars.count())
+        val listedCar = listResponse.cars[0]
+        assertEquals(10, listedCar.ratePerHour)
+        assertEquals(1, listedCar.photos.count())
+
+        val photoResponse = unauthenticatedClient.get(listedCar.photos[0])
+        assertEquals(HttpStatusCode.OK, photoResponse.status)
+        assertTrue(ContentType.Image.JPEG.match(photoResponse.headers["Content-Type"]!!))
 
         File("uploads/").deleteRecursively()
     }

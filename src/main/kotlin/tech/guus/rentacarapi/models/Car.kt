@@ -63,11 +63,12 @@ data class CarDTO(
     val modelName: String,
     val licensePlate: String,
     val color: String,
-//    val fuelType: FuelType,
-//    val ratePerHour: Int,
+    val fuelType: FuelType,
+    val ratePerHour: Int?,
     val status: CarStatus,
     val locationLatitude: Float,
     val locationLongitude: Float,
+    val photos: List<String>,
 ) {
     constructor(car: Car): this(
         ownerName = car.owner.firstName + " " + car.owner.lastName,
@@ -75,10 +76,11 @@ data class CarDTO(
         modelName = car.modelName,
         licensePlate = car.licensePlate,
         color = car.color,
-//        fuelType = car.fuelType,
-//        ratePerHour = car.ratePerHour,
+        fuelType = car.fuelType,
+        ratePerHour = car.ratePerHour,
         status = car.status,
         locationLatitude = car.owner.latitude,
-        locationLongitude = car.owner.longitude
+        locationLongitude = car.owner.longitude,
+        photos = car.photos.map { it.path }
     )
 }
