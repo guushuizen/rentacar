@@ -3,6 +3,7 @@ package tech.guus.rentacarapi
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -235,5 +236,42 @@ class CarsTest {
         assertTrue(ContentType.Image.JPEG.match(photoResponse.headers["Content-Type"]!!))
 
         File("test_uploads/").deleteRecursively()
+    }
+
+    @Test
+    fun testListCarsFilterByBrand() = setupTestApplicationWithUser {
+        val car = createDummyCar {
+            this.status = CarStatus.ACTIVE
+        }
+        val authenticatedClient = createAuthenticatedClient()
+
+        var listResponse: ListCarResponse
+
+        listResponse = authenticatedClient.get("/cars") {
+            parameter("brandName", "VOLKSWAGEN")
+        }.body<ListCarResponse>()
+        assertEquals(1, listResponse.cars.count())
+
+        listResponse = authenticatedClient.get("/cars") {
+            parameter("brandName", "Volkswagen")
+        }.body<ListCarResponse>()
+        assertEquals(1, listResponse.cars.count())
+
+        listResponse = authenticatedClient.get("/cars") {
+            parameter("modelName", "Scirocco")
+        }.body<ListCarResponse>()
+        assertEquals(1, listResponse.cars.count())
+
+
+        listResponse = authenticatedClient.get("/cars") {
+            parameter("brandName", "Volkswagen")
+            parameter("modelName", "Scirocco")
+        }.body<ListCarResponse>()
+        assertEquals(1, listResponse.cars.count())
+
+        listResponse = authenticatedClient.get("/cars") {
+            parameter("brandName", "Ford")
+        }.body<ListCarResponse>()
+        assertEquals(0, listResponse.cars.count())
     }
 }

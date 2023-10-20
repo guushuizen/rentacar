@@ -106,7 +106,7 @@ fun setupTestApplicationWithUser(block: suspend ApplicationTestBuilder.() -> Uni
     block()
 }
 
-fun createDummyCar(): Car {
+fun createDummyCar(block: Car.() -> Unit = {}): Car {
     val user: User = transaction { User.find { Users.emailAddress eq "guus@guus.tech" }.first() }
 
     return transaction { Car.new(UUID.randomUUID()) {
@@ -117,5 +117,7 @@ fun createDummyCar(): Car {
         this.licensePlate = "L369JR"
         this.status = CarStatus.DRAFT
         this.fuelType = FuelType.ICE
+
+        block()
     } }
 }

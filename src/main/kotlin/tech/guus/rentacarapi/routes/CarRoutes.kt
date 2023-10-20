@@ -8,8 +8,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.async
 import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.ktor.ext.inject
 import tech.guus.rentacarapi.models.*
@@ -26,10 +27,16 @@ fun Route.carRoutes() {
     val licensePlateService by inject<LicensePlateService>()
     route("cars") {
         get {
+            val brandNameFilter = call.request.queryParameters["brandName"]
+            val modelNameFilter = call.request.queryParameters["modelName"]
+
+            var op = Op.build { Cars.status eq CarStatus.ACTIVE }
+
+            if (brandNameFilter != null) op = op.and(Cars.brandName.upperCase() like brandNameFilter.uppercase())
+            if (modelNameFilter != null) op = op.and(Cars.modelName.upperCase() like modelNameFilter.uppercase())
+
             return@get call.respond(ListCarResponse(transaction {
-                return@transaction Car.find {
-                    Cars.status eq CarStatus.ACTIVE
-                }.map { CarDTO(it) }
+                return@transaction Car.find(op).map { CarDTO(it) }
             }
             ))
         }
