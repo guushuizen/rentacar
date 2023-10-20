@@ -35,13 +35,9 @@ buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath("org.flywaydb:flyway-mysql:9.20.0")
-    }
 }
 
 dependencies {
-    implementation("org.flywaydb:flyway-mysql:9.20.0")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
