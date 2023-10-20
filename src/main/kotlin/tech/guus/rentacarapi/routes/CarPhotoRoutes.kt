@@ -38,13 +38,15 @@ fun Route.carPhotoRoutes() {
 
             val newPhotos = mutableListOf<Pair<Int, String>>()
 
+            val uploadPath = this@carPhotoRoutes.environment!!.config.property("ktor.upload_dir").getString()
+
             var index = 0
             requestData.forEachPart { part ->
                 if (part is PartData.FileItem) {
                     val fileName = part.originalFileName as String
                     val fileBytes = part.streamProvider().readBytes()
-                    val path = "uploads/${UUID.randomUUID()}-$fileName"
-                    val file = File(path)
+                    val path = "${UUID.randomUUID()}-$fileName"
+                    val file = File("$uploadPath/$path")
                     file.parentFile.mkdirs()
                     file.writeBytes(fileBytes)
                     newPhotos.add(Pair(index, path))

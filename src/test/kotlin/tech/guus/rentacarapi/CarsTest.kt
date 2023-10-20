@@ -3,7 +3,6 @@ package tech.guus.rentacarapi
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -140,7 +139,7 @@ class CarsTest {
 
         assertEquals(3, savedPhotos.count())
 
-        val uploadFolder = File("uploads/")
+        val uploadFolder = File("test_uploads/")
         assertEquals(3, uploadFolder.listFiles()!!.count())
 
         response = createAuthenticatedClient().post("/cars/${car.id}/photos") {
@@ -235,6 +234,6 @@ class CarsTest {
         assertEquals(HttpStatusCode.OK, photoResponse.status)
         assertTrue(ContentType.Image.JPEG.match(photoResponse.headers["Content-Type"]!!))
 
-        File("uploads/").deleteRecursively()
+        File("test_uploads/").deleteRecursively()
     }
 }

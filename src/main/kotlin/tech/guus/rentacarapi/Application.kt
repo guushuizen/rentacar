@@ -54,16 +54,16 @@ fun Application.init(config: HoconApplicationConfig) {
         }
     }
 
-    configureRouting()
+    configureRouting(config)
     configureSerialization()
 }
-fun Application.configureRouting() {
+fun Application.configureRouting(config: HoconApplicationConfig) {
     routing {
         userRoutes()
         carRoutes()
         carPhotoRoutes()
 
-        staticFiles("/uploads", File("uploads"))
+        staticFiles("/uploads", File(config.property("ktor.upload_dir").getString()))
     }
 }
 

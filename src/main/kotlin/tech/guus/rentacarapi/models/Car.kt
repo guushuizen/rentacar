@@ -81,6 +81,6 @@ data class CarDTO(
         status = car.status,
         locationLatitude = car.owner.latitude,
         locationLongitude = car.owner.longitude,
-        photos = car.photos.map { it.path }
+        photos = car.photos.map { "uploads/${it.path}" }
     )
 }
