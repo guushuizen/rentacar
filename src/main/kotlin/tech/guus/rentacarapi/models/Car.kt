@@ -5,6 +5,10 @@ import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.Expression
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.QueryBuilder
+import org.jetbrains.exposed.sql.ResultRow
 import tech.guus.rentacarapi.models.User.Companion.referrersOn
 import java.util.*
 
@@ -44,6 +48,10 @@ class Car(id: EntityID<UUID>): Entity<UUID>(id) {
 
     val photos by CarPhoto referrersOn CarPhotos.carUuid
 }
+
+//fun Car.joinOwners() {
+//    return this.table.
+//}
 
 
 object Cars: UUIDTable() {

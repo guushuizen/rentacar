@@ -10,7 +10,11 @@ import kotlinx.coroutines.async
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.minus
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.times
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.ktor.ext.inject
 import tech.guus.rentacarapi.models.*
@@ -35,10 +39,46 @@ fun Route.carRoutes() {
             if (brandNameFilter != null) op = op.and(Cars.brandName.upperCase() like brandNameFilter.uppercase())
             if (modelNameFilter != null) op = op.and(Cars.modelName.upperCase() like modelNameFilter.uppercase())
 
-            return@get call.respond(ListCarResponse(transaction {
-                return@transaction Car.find(op).map { CarDTO(it) }
+            var currentLongitude = call.request.queryParameters["currentLongitude"]
+            var currentLatitude = call.request.queryParameters["currentLatitude"]
+            var filterRadius = call.request.queryParameters["filterRadius"]
+            val combinedArgs = arrayOf(currentLongitude, currentLatitude, filterRadius)
+
+            if (combinedArgs.all { it != null && it.toFloatOrNull() != null }) {
+                val distanceFunc = (CustomFunction<Float>(
+                    "SQRT",
+                    FloatColumnType(),
+                    CustomFunction<Float>(
+                        "POWER",
+                        FloatColumnType(),
+                        CustomFunction<Float>("GREATEST", FloatColumnType(), Users.longitude, floatLiteral(currentLongitude!!.toFloat()))
+                                - CustomFunction("LEAST", FloatColumnType(), Users.longitude, floatLiteral(currentLongitude.toFloat())),
+                        intLiteral(2)
+                    ) +
+                            CustomFunction(
+                                "POWER",
+                                FloatColumnType(),
+                                CustomFunction<Float>("GREATEST", FloatColumnType(), Users.latitude, floatLiteral(currentLatitude!!.toFloat()))
+                                        - CustomFunction("LEAST", FloatColumnType(), Users.latitude, floatLiteral(currentLatitude.toFloat())),
+                                intLiteral(2)
+                            )
+                ) * floatLiteral(111.32F)) // 1 degree ~= 111.32km
+                op = op.and(distanceFunc lessEq floatLiteral(filterRadius!!.toFloat()))
+            } else if (combinedArgs.any { it != null }) {
+                return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    "In order to filter on location, you must supply all float-valued `currentLongitude`, " +
+                            "`currentLatitude` and `filterRadius` query parameters."
+                )
             }
-            ))
+
+            return@get call.respond(ListCarResponse(transaction {
+                return@transaction Cars
+                    .innerJoin(Users)
+                    .select(op)
+                    .map(Car::wrapRow)
+                    .map { CarDTO(it) }
+            }))
         }
 
         authenticate {

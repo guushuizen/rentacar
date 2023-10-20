@@ -78,8 +78,8 @@ fun setupTestApplicationWithUser(block: suspend ApplicationTestBuilder.() -> Uni
                 "Breda",
                 "NL",
                 "123.000",
-                10.0F,
-                10.0F
+                5.8428F, // Nijmegen
+                51.8449F
             )
         )
     }

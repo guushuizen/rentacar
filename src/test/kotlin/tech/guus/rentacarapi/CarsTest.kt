@@ -240,14 +240,12 @@ class CarsTest {
 
     @Test
     fun testListCarsFilterByBrand() = setupTestApplicationWithUser {
-        val car = createDummyCar {
+        createDummyCar {
             this.status = CarStatus.ACTIVE
         }
         val authenticatedClient = createAuthenticatedClient()
 
-        var listResponse: ListCarResponse
-
-        listResponse = authenticatedClient.get("/cars") {
+        var listResponse: ListCarResponse = authenticatedClient.get("/cars") {
             parameter("brandName", "VOLKSWAGEN")
         }.body<ListCarResponse>()
         assertEquals(1, listResponse.cars.count())
@@ -271,6 +269,47 @@ class CarsTest {
 
         listResponse = authenticatedClient.get("/cars") {
             parameter("brandName", "Ford")
+        }.body<ListCarResponse>()
+        assertEquals(0, listResponse.cars.count())
+    }
+
+    @Test
+    fun testListCarsByCoordinatesAndRadius() = setupTestApplicationWithUser {
+        createDummyCar {
+            this.status = CarStatus.ACTIVE
+        }
+        val authenticatedClient = createAuthenticatedClient()
+
+        var listResponse: ListCarResponse = authenticatedClient.get("/cars") {
+            parameter("currentLongitude", 51.9851) // Arnhem
+            parameter("currentLatitude", 5.8987) // Arnhem
+            parameter("filterRadius", 25)
+        }.body<ListCarResponse>()
+        assertEquals(1, listResponse.cars.count())
+
+        listResponse = authenticatedClient.get("/cars") {
+            parameter("currentLongitude", 51.9851)
+            parameter("currentLatitude", 5.8987)
+            parameter("filterRadius", 10)
+        }.body<ListCarResponse>()
+        assertEquals(0, listResponse.cars.count())
+
+
+        listResponse = authenticatedClient.get("/cars") {
+            parameter("brandName", "Volkswagen")
+            parameter("modelName", "Scirocco")
+            parameter("currentLongitude", 51.5866)  // Breda
+            parameter("currentLatitude", 4.7756)
+            parameter("filterRadius", 200)
+        }.body<ListCarResponse>()
+        assertEquals(1, listResponse.cars.count())
+
+        listResponse = authenticatedClient.get("/cars") {
+            parameter("brandName", "Volkswagen")
+            parameter("modelName", "Scirocco")
+            parameter("currentLongitude", 51.5866)  // Breda
+            parameter("currentLatitude", 4.7756)
+            parameter("filterRadius", 20)
         }.body<ListCarResponse>()
         assertEquals(0, listResponse.cars.count())
     }
