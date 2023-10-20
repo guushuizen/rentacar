@@ -4,18 +4,14 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
-import org.jetbrains.exposed.dao.load
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.guus.rentacarapi.models.*
 import tech.guus.rentacarapi.requests.CreateCarRequest
+import tech.guus.rentacarapi.requests.UpdateCarRequest
 import tech.guus.rentacarapi.services.DatabaseService
 import java.io.File
-import java.lang.NullPointerException
-import java.net.URL
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.fail
+import kotlin.test.*
 
 
 class CarsTest {
@@ -98,7 +94,6 @@ class CarsTest {
     fun testUploadPictureForCar() = setupTestApplicationWithUser {
         val car = createDummyCar()
 
-        val boundary = "WebAppBoundary"
         var response = createAuthenticatedClient().post("/cars/${car.id}/photos") {
             setBody(
                 MultiPartFormDataContent(
@@ -130,8 +125,6 @@ class CarsTest {
                             }
                         )
                     },
-                    boundary,
-                    ContentType.MultiPart.FormData.withParameter("boundary", boundary)
                 )
             )
         }
@@ -161,8 +154,6 @@ class CarsTest {
                             }
                         )
                     },
-                    boundary,
-                    ContentType.MultiPart.FormData.withParameter("boundary", boundary)
                 )
             )
         }
@@ -180,5 +171,53 @@ class CarsTest {
         assertEquals(1, uploadFolder.listFiles()!!.count())
 
         uploadFolder.deleteRecursively()
+
+        assertNull(uploadFolder.listFiles())
+    }
+
+    @Test
+    fun testMarkCarAsActive() = setupTestApplicationWithUser {
+        val car = createDummyCar()
+        val authenticatedClient = createAuthenticatedClient()
+
+        authenticatedClient.post("/cars/${car.id}/photos") {
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append(
+                            "image[]",
+                            object {}.javaClass.classLoader.getResourceAsStream("car.jpg")!!.readAllBytes(),
+                            Headers.build {
+                                append(HttpHeaders.ContentType, "image/jpeg")
+                                append(HttpHeaders.ContentDisposition, "filename=\"car.jpeg\"")
+                            }
+                        )
+                    },
+                )
+            )
+        }
+
+        assertEquals(
+            HttpStatusCode.OK,
+            authenticatedClient.patch("/cars/${car.id}") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    UpdateCarRequest(
+                        status = CarStatus.ACTIVE,
+                        ratePerHour = 10
+                    )
+                )
+            }.status
+        )
+
+        transaction {
+            assertNotNull(
+                Car.find {
+                    (Cars.id eq car.id) and (Cars.ratePerHour eq 10) and (Cars.status eq CarStatus.ACTIVE)
+                }.firstOrNull()
+            )
+        }
+
+        File("uploads/").deleteRecursively()
     }
 }

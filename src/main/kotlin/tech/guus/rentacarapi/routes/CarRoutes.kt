@@ -8,11 +8,13 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.async
 import org.jetbrains.exposed.exceptions.ExposedSQLException
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.ktor.ext.inject
 import tech.guus.rentacarapi.models.*
 import tech.guus.rentacarapi.requests.CreateCarRequest
+import tech.guus.rentacarapi.requests.UpdateCarRequest
 import tech.guus.rentacarapi.services.LicensePlateService
 import java.sql.BatchUpdateException
 import java.sql.SQLIntegrityConstraintViolationException
@@ -60,6 +62,23 @@ fun Route.carRoutes() {
                         return@post call.respond(HttpStatusCode.InternalServerError)
                     }
                 }
+            }
+
+            patch("{carUuid}") {
+                val carUuid = call.parameters["carUuid"]
+                val user = call.principal<User>()!!
+                val car = transaction {
+                    Car.find { (Cars.id eq UUID.fromString(carUuid)) and (Cars.ownerUuid eq user.id) }.firstOrNull()
+                } ?: return@patch call.respond(HttpStatusCode.Forbidden)
+
+                val requestBody = call.receive<UpdateCarRequest>()
+
+                transaction {
+                    car.status = requestBody.status
+                    if (requestBody.ratePerHour != null) car.ratePerHour = requestBody.ratePerHour
+                }
+
+                return@patch call.respond(HttpStatusCode.OK)
             }
         }
     }
