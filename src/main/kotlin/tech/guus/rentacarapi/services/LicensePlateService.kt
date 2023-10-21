@@ -44,7 +44,7 @@ data class BasicLicensePlateInfo(
     val eerste_kleur: String,
 )
 
-class LicensePlateService {
+object LicensePlateService {
     private val httpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
             jackson {

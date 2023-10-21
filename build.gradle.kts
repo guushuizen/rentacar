@@ -4,12 +4,10 @@ val ktorVersion = "2.3.4"
 val logbackVersion = "1.4.11"
 val kotlinVersion = "1.9.10"
 val exposed_version = "0.41.1"
-val koinVersion = "3.3.0"
 val mockkVersion = "1.13.8"
 
 plugins {
     application
-    id("org.flywaydb.flyway") version "9.22.0"
     id("io.ktor.plugin") version "2.3.4"
 
     kotlin("jvm") version "1.9.10"
@@ -52,7 +50,6 @@ dependencies {
 
     implementation("io.ktor:ktor-server-request-validation:$ktorVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-    implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("mysql:mysql-connector-java:8.0.28")
     implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
     implementation("io.ktor:ktor-client-auth:$ktorVersion")

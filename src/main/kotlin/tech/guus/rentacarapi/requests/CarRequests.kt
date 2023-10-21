@@ -10,10 +10,11 @@ data class ListCarResponse(
 
 
 data class CreateCarRequest(
-    val licensePlate: String
+    val licensePlate: String,
+    val ratePerHour: Int? = null
 )
 
 data class UpdateCarRequest(
     val status: CarStatus,
-    val ratePerHour: Int?
+    val ratePerHour: Int? = null
 )

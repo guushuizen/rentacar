@@ -28,7 +28,6 @@ import java.util.*
 
 
 fun Route.carRoutes() {
-    val licensePlateService by inject<LicensePlateService>()
     route("cars") {
         get {
             val brandNameFilter = call.request.queryParameters["brandName"]
@@ -94,7 +93,7 @@ fun Route.carRoutes() {
                 }
 
                 val licensePlateInfo =
-                    async { licensePlateService.getLicensePlateDetails(request.licensePlate) }.await()
+                    async { LicensePlateService.getLicensePlateDetails(request.licensePlate) }.await()
                         ?: return@post call.respond(HttpStatusCode.BadRequest)
 
                 try {
@@ -106,6 +105,7 @@ fun Route.carRoutes() {
                             licensePlate = request.licensePlate
                             color = licensePlateInfo.first.eerste_kleur
                             fuelType = FuelType.fromRdwDescription(licensePlateInfo.second.brandstof_omschrijving)
+                            if (request.ratePerHour != null) ratePerHour = request.ratePerHour
                         }
 
                         CarDTO(car)
@@ -130,6 +130,13 @@ fun Route.carRoutes() {
                 } ?: return@patch call.respond(HttpStatusCode.Forbidden)
 
                 val requestBody = call.receive<UpdateCarRequest>()
+
+                if ((car.ratePerHour == null && requestBody.ratePerHour == null) && requestBody.status == CarStatus.ACTIVE) {
+                    return@patch call.respond(
+                        HttpStatusCode.BadRequest,
+                        "You can only activate your listing if you've set an hourly rate for your car."
+                    )
+                }
 
                 transaction {
                     car.status = requestBody.status

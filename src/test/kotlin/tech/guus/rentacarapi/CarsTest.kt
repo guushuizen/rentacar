@@ -204,6 +204,14 @@ class CarsTest {
         }
 
         assertEquals(
+            HttpStatusCode.BadRequest,
+            authenticatedClient.patch("/cars/${car.id}") {
+                contentType(ContentType.Application.Json)
+                setBody(UpdateCarRequest(status = CarStatus.ACTIVE))
+            }.status
+        )
+
+        assertEquals(
             HttpStatusCode.OK,
             authenticatedClient.patch("/cars/${car.id}") {
                 contentType(ContentType.Application.Json)

@@ -1,7 +1,6 @@
 package tech.guus.rentacarapi
 
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.typesafe.config.ConfigFactory
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
@@ -10,13 +9,14 @@ import io.ktor.server.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
-import io.ktor.server.routing.*
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
-import org.koin.ktor.plugin.koin
-import tech.guus.rentacarapi.repositories.UserRepository
+import io.ktor.server.routing.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import tech.guus.rentacarapi.models.User
+import tech.guus.rentacarapi.models.Users
 import tech.guus.rentacarapi.requests.CreateCarRequest
 import tech.guus.rentacarapi.routes.carPhotoRoutes
 import tech.guus.rentacarapi.routes.carRoutes
@@ -31,22 +31,19 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.module() {
     val config = this.environment.config
-    val userRepository = UserRepository()
     DatabaseService.init(config)
-    koin {
-        val dependencyContainer = org.koin.dsl.module {
-            single { userRepository }
-            single { LicensePlateService() }
-        }
-
-        modules(dependencyContainer)
-    }
 
     install(Authentication) {
         basic {
             realm = "Access to the application"
             validate { credentials ->
-                userRepository.attemptLogin(credentials.name, credentials.password)
+                return@validate transaction {
+                    User.find {
+                        Users.emailAddress eq credentials.name
+                        Users.password eq credentials.password
+                    }
+                        .singleOrNull()
+                }
             }
         }
     }

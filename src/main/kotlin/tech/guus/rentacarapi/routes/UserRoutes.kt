@@ -7,18 +7,16 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.koin.ktor.ext.inject
-import tech.guus.rentacarapi.requests.CreateUserRequest
+import org.jetbrains.exposed.sql.transactions.transaction
 import tech.guus.rentacarapi.models.User
 import tech.guus.rentacarapi.models.UserDTO
-import tech.guus.rentacarapi.repositories.UserRepository
+import tech.guus.rentacarapi.requests.CreateUserRequest
 import java.sql.BatchUpdateException
 import java.sql.SQLIntegrityConstraintViolationException
+import java.util.*
 
 
 fun Route.userRoutes() {
-    val userRepository by inject<UserRepository>()
-
     route("/users") {
         authenticate {
             get {
@@ -31,7 +29,21 @@ fun Route.userRoutes() {
             val requestBody = call.receive<CreateUserRequest>()
 
             try {
-                val user = userRepository.insert(requestBody)
+                val user = transaction {
+                    return@transaction User.new(UUID.randomUUID()) {
+                        firstName = requestBody.firstName
+                        lastName = requestBody.lastName
+                        emailAddress = requestBody.emailAddress
+                        password = requestBody.password
+                        streetName = requestBody.streetName
+                        houseNumber = requestBody.houseNumber
+                        postalCode = requestBody.postalCode
+                        city = requestBody.city
+                        country = requestBody.country
+                        latitude = requestBody.latitude
+                        longitude = requestBody.longitude
+                    }
+                }
 
                 call.respond(HttpStatusCode.Created, UserDTO(user))
             } catch (e: Exception) {
