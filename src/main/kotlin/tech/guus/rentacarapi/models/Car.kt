@@ -1,21 +1,15 @@
 package tech.guus.rentacarapi.models
 
-import io.ktor.server.auth.*
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.Expression
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.QueryBuilder
-import org.jetbrains.exposed.sql.ResultRow
-import tech.guus.rentacarapi.models.User.Companion.referrersOn
 import java.util.*
 
-enum class FuelType(val internalName: String) {
-    ICE("internal_combustion_engine"),
-    BEV("battery_electric_vehicle"),
-    FCEV("fuel_cell_electric_vehicle");
+enum class FuelType {
+    ICE,
+    BEV,
+    FCEV;
 
     companion object {
         fun fromRdwDescription(description: String): FuelType {
@@ -28,9 +22,9 @@ enum class FuelType(val internalName: String) {
     }
 }
 
-enum class CarStatus(val internalName: String) {
-    ACTIVE("active"),
-    DRAFT("draft")
+enum class CarStatus {
+    ACTIVE,
+    DRAFT
 }
 
 
@@ -48,11 +42,6 @@ class Car(id: EntityID<UUID>): Entity<UUID>(id) {
 
     val photos by CarPhoto referrersOn CarPhotos.carUuid
 }
-
-//fun Car.joinOwners() {
-//    return this.table.
-//}
-
 
 object Cars: UUIDTable() {
     val ownerUuid = reference("owner_uuid", Users)

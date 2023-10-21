@@ -3,7 +3,6 @@ package tech.guus.rentacarapi.services
 import io.ktor.server.config.*
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.Schema
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -14,7 +13,7 @@ import tech.guus.rentacarapi.models.Users
 import java.sql.Connection
 import java.sql.DriverManager
 
-object DatabaseService {
+object Database {
     val tables = setOf(
         Users,
         Cars,
@@ -46,9 +45,6 @@ object DatabaseService {
             tables.forEach { SchemaUtils.create(it) }
         }
     }
-
-    suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO) { block() }
 
     fun resetDatabase() {
         transaction(database) {

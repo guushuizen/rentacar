@@ -1,6 +1,5 @@
 package tech.guus.rentacarapi
 
-import com.typesafe.config.ConfigFactory
 import io.ktor.client.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
@@ -13,7 +12,7 @@ import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.guus.rentacarapi.models.*
 import tech.guus.rentacarapi.requests.CreateUserRequest
-import tech.guus.rentacarapi.services.DatabaseService
+import tech.guus.rentacarapi.services.Database
 import java.util.*
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertEquals
@@ -30,7 +29,7 @@ fun setupTestApplication(block: suspend ApplicationTestBuilder.() -> Unit) {
 
         block()
 
-        DatabaseService.resetDatabase()
+        Database.resetDatabase()
     }
 }
 

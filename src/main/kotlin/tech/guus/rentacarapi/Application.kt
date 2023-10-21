@@ -6,7 +6,6 @@ import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.config.*
-import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -21,8 +20,7 @@ import tech.guus.rentacarapi.requests.CreateCarRequest
 import tech.guus.rentacarapi.routes.carPhotoRoutes
 import tech.guus.rentacarapi.routes.carRoutes
 import tech.guus.rentacarapi.routes.userRoutes
-import tech.guus.rentacarapi.services.DatabaseService
-import tech.guus.rentacarapi.services.LicensePlateService
+import tech.guus.rentacarapi.services.Database
 import java.io.File
 
 
@@ -31,7 +29,7 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.module() {
     val config = this.environment.config
-    DatabaseService.init(config)
+    Database.init(config)
 
     install(Authentication) {
         basic {

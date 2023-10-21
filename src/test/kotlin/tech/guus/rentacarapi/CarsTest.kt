@@ -3,7 +3,6 @@ package tech.guus.rentacarapi
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -11,7 +10,7 @@ import tech.guus.rentacarapi.models.*
 import tech.guus.rentacarapi.requests.CreateCarRequest
 import tech.guus.rentacarapi.requests.ListCarResponse
 import tech.guus.rentacarapi.requests.UpdateCarRequest
-import tech.guus.rentacarapi.services.DatabaseService
+import tech.guus.rentacarapi.services.Database
 import java.io.File
 import kotlin.test.*
 
@@ -31,7 +30,7 @@ class CarsTest {
 
         assertEquals(HttpStatusCode.Created, response.status)
 
-        transaction(DatabaseService.database) {
+        transaction {
             val foundCar = Car.find { Cars.licensePlate eq "L369JR" }.first()
             assertNotNull(foundCar)
             assertEquals(CarStatus.DRAFT, foundCar.status)
@@ -55,7 +54,7 @@ class CarsTest {
             )
         }
 
-        transaction(DatabaseService.database) {
+        transaction(Database.database) {
             assertNotNull(Car.find { Cars.licensePlate eq "L369JR" }.firstOrNull())
         }
 

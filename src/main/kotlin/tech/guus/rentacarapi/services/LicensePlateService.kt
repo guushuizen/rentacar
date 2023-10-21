@@ -10,28 +10,6 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 
 
-/**
- * [
- *   {
- *     "kenteken": "L369JR",
- *     "brandstof_volgnummer": "1",
- *     "brandstof_omschrijving": "Benzine",
- *     "brandstofverbruik_buiten": "5.30",
- *     "brandstofverbruik_gecombineerd": "6.40",
- *     "brandstofverbruik_stad": "8.40",
- *     "co2_uitstoot_gecombineerd": "149",
- *     "geluidsniveau_rijdend": "72",
- *     "geluidsniveau_stationair": "76",
- *     "emissiecode_omschrijving": "5",
- *     "milieuklasse_eg_goedkeuring_licht": "715/2007*692/2008A",
- *     "uitstoot_deeltjes_licht": "0.00160",
- *     "nettomaximumvermogen": "90.00",
- *     "toerental_geluidsniveau": "3750",
- *     "uitlaatemissieniveau": "EURO 5 A"
- *   }
- * ]
- */
-
 data class EconomicLicensePlateInfo(
     val kenteken: String,
     val brandstof_omschrijving: String,

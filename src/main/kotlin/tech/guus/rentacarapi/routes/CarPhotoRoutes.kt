@@ -32,7 +32,7 @@ fun Route.carPhotoRoutes() {
                     oldPhotos = car.load(Car::photos).photos.toList()
 
                 return@transaction car
-            } ?: return@post call.respond(HttpStatusCode.Forbidden)
+            } ?: return@post call.respond(HttpStatusCode.NotFound)
 
             val requestData = call.receiveMultipart()
 

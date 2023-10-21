@@ -16,7 +16,6 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.minus
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.times
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.ktor.ext.inject
 import tech.guus.rentacarapi.models.*
 import tech.guus.rentacarapi.requests.CreateCarRequest
 import tech.guus.rentacarapi.requests.ListCarResponse
@@ -38,9 +37,9 @@ fun Route.carRoutes() {
             if (brandNameFilter != null) op = op.and(Cars.brandName.upperCase() like brandNameFilter.uppercase())
             if (modelNameFilter != null) op = op.and(Cars.modelName.upperCase() like modelNameFilter.uppercase())
 
-            var currentLongitude = call.request.queryParameters["currentLongitude"]
-            var currentLatitude = call.request.queryParameters["currentLatitude"]
-            var filterRadius = call.request.queryParameters["filterRadius"]
+            val currentLongitude = call.request.queryParameters["currentLongitude"]
+            val currentLatitude = call.request.queryParameters["currentLatitude"]
+            val filterRadius = call.request.queryParameters["filterRadius"]
             val combinedArgs = arrayOf(currentLongitude, currentLatitude, filterRadius)
 
             if (combinedArgs.all { it != null && it.toFloatOrNull() != null }) {
@@ -84,11 +83,11 @@ fun Route.carRoutes() {
             post {
                 val request = call.receive<CreateCarRequest>()
 
-                val existingCar = transaction {
-                    return@transaction Cars.select { Cars.licensePlate eq request.licensePlate }.firstOrNull()
+                val existingCarCount = transaction {
+                    return@transaction Cars.select { Cars.licensePlate eq request.licensePlate }.count()
                 }
 
-                if (existingCar != null) {
+                if (existingCarCount > 0) {
                     return@post call.respond(HttpStatusCode.Conflict)
                 }
 
@@ -127,7 +126,7 @@ fun Route.carRoutes() {
                 val user = call.principal<User>()!!
                 val car = transaction {
                     Car.find { (Cars.id eq UUID.fromString(carUuid)) and (Cars.ownerUuid eq user.id) }.firstOrNull()
-                } ?: return@patch call.respond(HttpStatusCode.Forbidden)
+                } ?: return@patch call.respond(HttpStatusCode.NotFound)
 
                 val requestBody = call.receive<UpdateCarRequest>()
 
