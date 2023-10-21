@@ -1,5 +1,6 @@
 package tech.guus.rentacarapi
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
@@ -33,7 +34,7 @@ fun Application.module() {
 
     install(Authentication) {
         basic {
-            realm = "Access to the application"
+            realm = "RentACar"
             validate { credentials ->
                 return@validate transaction {
                     User.find {
@@ -53,7 +54,6 @@ fun Application.configureRouting(config: ApplicationConfig) {
     routing {
         userRoutes()
         carRoutes()
-        carPhotoRoutes()
 
         staticFiles("/uploads", File(config.property("ktor.upload_dir").getString()))
     }
@@ -77,6 +77,7 @@ fun Application.configureSerialization() {
     install(ContentNegotiation) {
         jackson {
             registerKotlinModule()
+            registerModule(JavaTimeModule())
         }
     }
 }

@@ -41,12 +41,15 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
 
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
 
     implementation("io.ktor:ktor-server-request-validation:$ktorVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")

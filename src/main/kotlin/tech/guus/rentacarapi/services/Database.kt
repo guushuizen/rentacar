@@ -1,14 +1,13 @@
 package tech.guus.rentacarapi.services
 
 import io.ktor.server.config.*
-import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.guus.rentacarapi.models.CarPhotos
 import tech.guus.rentacarapi.models.Cars
+import tech.guus.rentacarapi.models.Reservations
 import tech.guus.rentacarapi.models.Users
 import java.sql.Connection
 import java.sql.DriverManager
@@ -17,7 +16,8 @@ object Database {
     val tables = setOf(
         Users,
         Cars,
-        CarPhotos
+        CarPhotos,
+        Reservations
     )
 
     var database: Database? = null

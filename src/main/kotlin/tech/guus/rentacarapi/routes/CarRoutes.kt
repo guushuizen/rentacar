@@ -121,28 +121,33 @@ fun Route.carRoutes() {
                 }
             }
 
-            patch("{carUuid}") {
-                val carUuid = call.parameters["carUuid"]
-                val user = call.principal<User>()!!
-                val car = transaction {
-                    Car.find { (Cars.id eq UUID.fromString(carUuid)) and (Cars.ownerUuid eq user.id) }.firstOrNull()
-                } ?: return@patch call.respond(HttpStatusCode.NotFound)
+            route("{carUuid}") {
+                patch {
+                    val carUuid = call.parameters["carUuid"]
+                    val user = call.principal<User>()!!
+                    val car = transaction {
+                        Car.find { (Cars.id eq UUID.fromString(carUuid)) and (Cars.ownerUuid eq user.id) }.firstOrNull()
+                    } ?: return@patch call.respond(HttpStatusCode.NotFound)
 
-                val requestBody = call.receive<UpdateCarRequest>()
+                    val requestBody = call.receive<UpdateCarRequest>()
 
-                if ((car.ratePerHour == null && requestBody.ratePerHour == null) && requestBody.status == CarStatus.ACTIVE) {
-                    return@patch call.respond(
-                        HttpStatusCode.BadRequest,
-                        "You can only activate your listing if you've set an hourly rate for your car."
-                    )
+                    if ((car.ratePerHour == null && requestBody.ratePerHour == null) && requestBody.status == CarStatus.ACTIVE) {
+                        return@patch call.respond(
+                            HttpStatusCode.BadRequest,
+                            "You can only activate your listing if you've set an hourly rate for your car."
+                        )
+                    }
+
+                    transaction {
+                        car.status = requestBody.status
+                        if (requestBody.ratePerHour != null) car.ratePerHour = requestBody.ratePerHour
+                    }
+
+                    return@patch call.respond(HttpStatusCode.OK)
                 }
 
-                transaction {
-                    car.status = requestBody.status
-                    if (requestBody.ratePerHour != null) car.ratePerHour = requestBody.ratePerHour
-                }
-
-                return@patch call.respond(HttpStatusCode.OK)
+                carPhotoRoutes()
+                reservationRoutes()
             }
         }
     }

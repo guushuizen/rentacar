@@ -1,9 +1,14 @@
 package tech.guus.rentacarapi.models
 
+import io.ktor.server.http.*
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.SortOrder
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 
 enum class FuelType {
@@ -40,6 +45,7 @@ class Car(id: EntityID<UUID>): Entity<UUID>(id) {
     var ratePerHour by Cars.ratePerHour
     var status by Cars.status
 
+    val reservations by Reservation referrersOn Reservations.carUuid
     val photos by CarPhoto referrersOn CarPhotos.carUuid
 }
 
@@ -67,6 +73,7 @@ data class CarDTO(
     val locationLatitude: Float,
     val locationLongitude: Float,
     val photos: List<String>,
+    val reservedDates: List<List<String>>
 ) {
     constructor(car: Car): this(
         id = car.id.value,
@@ -80,6 +87,10 @@ data class CarDTO(
         status = car.status,
         locationLatitude = car.owner.latitude,
         locationLongitude = car.owner.longitude,
-        photos = car.photos.map { "uploads/${it.path}" }
+        photos = car.photos.map { "uploads/${it.path}" },
+        reservedDates = car.reservations
+            .orderBy(Reservations.startDateTimeUtc to SortOrder.ASC)
+            .filter { it.startDateTimeUtc.isAfter(LocalDateTime.now(ZoneOffset.UTC)) }
+            .map { listOf(it.startDateTimeUtc.toInstant(ZoneOffset.UTC).toString(), it.endDateTimeUtc.toInstant(ZoneOffset.UTC).toString()) }
     )
 }
