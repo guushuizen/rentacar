@@ -4,10 +4,8 @@ import io.ktor.server.auth.*
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.Column
-import java.util.UUID
+import java.util.*
 
 
 object Users: UUIDTable() {

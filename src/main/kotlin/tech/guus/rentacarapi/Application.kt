@@ -14,6 +14,7 @@ import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.guus.rentacarapi.models.User
 import tech.guus.rentacarapi.models.Users
@@ -38,8 +39,8 @@ fun Application.module() {
             validate { credentials ->
                 return@validate transaction {
                     User.find {
-                        Users.emailAddress eq credentials.name
-                        Users.password eq credentials.password
+                        (Users.emailAddress eq credentials.name)
+                            .and (Users.password eq credentials.password)
                     }
                         .singleOrNull()
                 }

@@ -41,7 +41,7 @@ class ReservationsTest {
             city = "Breda",
             country = "NL",
             postalCode = "6512BN",
-            latitude = 5.8428F, // Nijmegen
+            latitude = 5.8428F,
             longitude = 51.8449F
         ))
 
