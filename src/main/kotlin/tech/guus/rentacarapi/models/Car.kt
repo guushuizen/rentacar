@@ -90,7 +90,9 @@ data class CarDTO(
         photos = car.photos.map { "uploads/${it.path}" },
         reservedDates = car.reservations
             .orderBy(Reservations.startDateTimeUtc to SortOrder.ASC)
-            .filter { it.startDateTimeUtc.isAfter(LocalDateTime.now(ZoneOffset.UTC)) }
+            .filter {
+                LocalDateTime.now(ZoneOffset.UTC).isBefore(it.endDateTimeUtc)
+            }
             .map { listOf(it.startDateTimeUtc.toInstant(ZoneOffset.UTC).toString(), it.endDateTimeUtc.toInstant(ZoneOffset.UTC).toString()) }
     )
 }
