@@ -2,6 +2,7 @@ package tech.guus.rentacarapi
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.client.call.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -31,7 +32,8 @@ class ReservationsTest {
             ratePerHour = 10
         }
 
-        val userToReserveWith = createUser(createUnauthenticatedClient(), CreateUserRequest(
+        val unauthenticatedClient = createUnauthenticatedClient()
+        val userToReserveWith = createUser(unauthenticatedClient, CreateUserRequest(
             firstName = "Guus 2",
             lastName = "Huizen",
             emailAddress = "foo@bar.baz",
@@ -45,6 +47,8 @@ class ReservationsTest {
             longitude = 51.8449F
         ))
 
+        val jwt = generateJwt(unauthenticatedClient, "foo@bar.baz", "bar")
+
         val customClient = createClient {
             install(ContentNegotiation) {
                 jackson {
@@ -52,12 +56,9 @@ class ReservationsTest {
                 }
             }
 
-            install(Auth) {
-                basic {
-                    credentials {
-                        BasicAuthCredentials(username = "foo@bar.baz", password = "bar")
-                    }
-                }
+
+            defaultRequest {
+                header(HttpHeaders.Authorization, "Bearer $jwt")
             }
         }
 

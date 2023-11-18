@@ -3,8 +3,7 @@ package tech.guus.rentacarapi
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -14,6 +13,7 @@ import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.guus.rentacarapi.models.*
 import tech.guus.rentacarapi.requests.CreateUserRequest
+import tech.guus.rentacarapi.requests.LoginRequest
 import tech.guus.rentacarapi.services.Database
 import java.util.*
 import kotlin.coroutines.EmptyCoroutineContext
@@ -43,7 +43,17 @@ fun ApplicationTestBuilder.createUnauthenticatedClient(): HttpClient {
     }
 }
 
-fun ApplicationTestBuilder.createAuthenticatedClient(): HttpClient {
+suspend fun ApplicationTestBuilder.createAuthenticatedClient(): HttpClient {
+    val jsonClient = createClient {
+        install(ContentNegotiation) {
+            jackson {
+                registerModule(JavaTimeModule())
+            }
+        }
+    }
+
+    val jwt = generateJwt(jsonClient)
+
     return createClient {
         install(ContentNegotiation) {
             jackson {
@@ -51,13 +61,8 @@ fun ApplicationTestBuilder.createAuthenticatedClient(): HttpClient {
             }
         }
 
-        install(Auth) {
-            basic {
-                sendWithoutRequest { true }
-                credentials {
-                    BasicAuthCredentials(username = "guus@guus.tech", password = "foo")
-                }
-            }
+        defaultRequest {
+            header(HttpHeaders.Authorization, "Bearer $jwt")
         }
     }
 }
@@ -85,17 +90,15 @@ fun setupTestApplicationWithUser(block: suspend ApplicationTestBuilder.() -> Uni
         )
     )
 
-    client = createClient {
+    val jwt = generateJwt(client)
+
+    client = client.config {
         install(ContentNegotiation) {
             jackson()
         }
 
-        install(Auth) {
-            basic {
-                credentials {
-                    BasicAuthCredentials(username = "guus@guus.tech", password = "foo")
-                }
-            }
+        defaultRequest {
+            header(HttpHeaders.Authorization, "Bearer $jwt")
         }
     }
 
@@ -103,6 +106,19 @@ fun setupTestApplicationWithUser(block: suspend ApplicationTestBuilder.() -> Uni
     assertEquals(HttpStatusCode.OK, testLoginResponse.status)
 
     block()
+}
+
+suspend fun generateJwt(client: HttpClient, emailAddress: String = "guus@guus.tech", password: String = "foo"): String? {
+    val jwtResponse = client.post("/login") {
+        contentType(ContentType.Application.Json)
+        setBody(
+            LoginRequest(
+                emailAddress = emailAddress,
+                password = password
+            )
+        )
+    }
+    return jwtResponse.body<Map<String, String>>()["token"]
 }
 
 suspend fun createUser(client: HttpClient, body: CreateUserRequest): UserDTO {

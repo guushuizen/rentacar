@@ -58,7 +58,7 @@ class CarsTest {
             assertNotNull(Car.find { Cars.licensePlate eq "L369JR" }.firstOrNull())
         }
 
-        var response = createAuthenticatedClient().post("/cars") {
+        val response = createAuthenticatedClient().post("/cars") {
             contentType(ContentType.Application.Json)
             setBody(
                 CreateCarRequest(
@@ -72,7 +72,8 @@ class CarsTest {
 
     @Test
     fun testLicensePlateMustBe6CharactersLong() = setupTestApplicationWithUser {
-        assertEquals(HttpStatusCode.BadRequest, createAuthenticatedClient().post("/cars") {
+        val authenticatedClient = createAuthenticatedClient()
+        assertEquals(HttpStatusCode.BadRequest, authenticatedClient.post("/cars") {
             contentType(ContentType.Application.Json)
             setBody(
                 CreateCarRequest(
@@ -81,7 +82,7 @@ class CarsTest {
             )
         }.status)
 
-        assertEquals(HttpStatusCode.BadRequest, createAuthenticatedClient().post("/cars") {
+        assertEquals(HttpStatusCode.BadRequest, authenticatedClient.post("/cars") {
             contentType(ContentType.Application.Json)
             setBody(
                 CreateCarRequest(
