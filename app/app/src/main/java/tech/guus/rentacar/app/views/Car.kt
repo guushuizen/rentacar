@@ -14,6 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -25,6 +27,8 @@ fun CarListView(
     carListViewModel: CarListViewModel,
     onMenuButtonClicked: () -> Unit,
 ) {
+    val cars by carListViewModel.listedCars.collectAsState()
+
     return Scaffold(
         topBar = {
             TopAppBar(
@@ -52,6 +56,9 @@ fun CarListView(
                 .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            cars.forEach {
+                Text(text = it.licensePlate)
+            }
         }
     }
 }
