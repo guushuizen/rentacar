@@ -18,7 +18,8 @@ class CarListViewModel(
     override val screenTitle: String
         get() = "Alle auto's"
 
-    var loading = mutableStateOf(true)
+    private val _loading = MutableStateFlow(true)
+    val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
     private val _cars = MutableStateFlow(emptyList<ListedCar>())
     val listedCars: StateFlow<List<ListedCar>> = _cars.asStateFlow()
@@ -28,10 +29,10 @@ class CarListViewModel(
     }
 
     fun refreshCarList() {
-        loading.value = true
+        _loading.update { true }
         viewModelScope.launch {
             _cars.update { carRepository.getAllCars() }
-            loading.value = false
+            _loading.update { false }
         }
     }
 }

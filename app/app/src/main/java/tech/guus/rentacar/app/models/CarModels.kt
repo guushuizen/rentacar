@@ -2,6 +2,11 @@ package tech.guus.rentacar.app.models
 
 import java.util.UUID
 
+
+data class ListCarResponse(
+    val cars: List<ListedCar>
+)
+
 data class ListedCar(
     val id: UUID,
     val ownerName: String,
