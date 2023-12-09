@@ -2,7 +2,9 @@ package tech.guus.rentacar.app.viewmodels
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,8 +17,7 @@ class CarListViewModel(
     private val carRepository: CarRepository
 ) : BaseViewModel() {
 
-    override val screenTitle: String
-        get() = "Alle auto's"
+    override val screenTitle: String = "Alle auto's"
 
     private val _loading = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
@@ -29,7 +30,6 @@ class CarListViewModel(
     }
 
     fun refreshCarList() {
-        _loading.update { true }
         viewModelScope.launch {
             _cars.update { carRepository.getAllCars() }
             _loading.update { false }

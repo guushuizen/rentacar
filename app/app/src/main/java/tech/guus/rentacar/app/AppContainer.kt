@@ -6,10 +6,12 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
 import tech.guus.rentacar.app.repositories.CarRepository
 import tech.guus.rentacar.app.repositories.CarRepositoryImpl
+import tech.guus.rentacar.app.repositories.UserRepository
+import tech.guus.rentacar.app.repositories.UserRepositoryImpl
 
 class AppContainer {
 
-    val httpClient = HttpClient(Android) {
+    private val httpClient = HttpClient(Android) {
         install(ContentNegotiation) {
             jackson()
         }
@@ -17,4 +19,5 @@ class AppContainer {
 
     val carRepository: CarRepository = CarRepositoryImpl(httpClient)
 
+    val userRepository: UserRepository = UserRepositoryImpl()
 }
