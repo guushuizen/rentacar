@@ -151,4 +151,18 @@ fun Route.carRoutes() {
             }
         }
     }
+
+    route("/my-cars") {
+        authenticate {
+            get {
+                val user = call.principal<User>()!!
+                val response = transaction {
+                    val cars = Car.find { Cars.ownerUuid eq user.id }
+                    return@transaction ListCarResponse(cars.map { CarDTO(it) })
+                }
+
+                return@get call.respond(HttpStatusCode.OK, response)
+            }
+        }
+    }
 }

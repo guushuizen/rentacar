@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.guus.rentacarapi.models.*
 import tech.guus.rentacarapi.requests.CreateCarRequest
+import tech.guus.rentacarapi.requests.CreateUserRequest
 import tech.guus.rentacarapi.requests.ListCarResponse
 import tech.guus.rentacarapi.requests.UpdateCarRequest
 import tech.guus.rentacarapi.services.Database
@@ -320,5 +321,41 @@ class CarsTest {
             parameter("filterRadius", 20)
         }.body<ListCarResponse>()
         assertEquals(0, listResponse.cars.count())
+    }
+
+
+    @Test
+    fun testListMyCars() = setupTestApplicationWithUser {
+        val otherUser = createUser(
+            createUnauthenticatedClient(), CreateUserRequest(
+                firstName = "Guus 2",
+                lastName = "Huizen",
+                emailAddress = "foo@bar.baz",
+                password = "bar",
+                streetName = "Hogeschoollaan",
+                houseNumber = "1",
+                city = "Breda",
+                country = "NL",
+                postalCode = "6512BN",
+                latitude = 5.8428F,
+                longitude = 51.8449F
+            )
+        )
+        val otherUserModel = transaction {
+            return@transaction User.findById(otherUser.uuid)!!
+        }
+
+        createDummyCar {
+            this.owner = otherUserModel
+            this.licensePlate = "L369JK"
+        }
+
+        val authenticatedClient = createAuthenticatedClient()
+
+        assertEquals(authenticatedClient.get("/my-cars").body<ListCarResponse>().cars.count(), 0)
+
+        createDummyCar()
+
+        assertEquals(authenticatedClient.get("/my-cars").body<ListCarResponse>().cars.count(), 1)
     }
 }
