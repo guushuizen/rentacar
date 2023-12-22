@@ -29,8 +29,8 @@ fun Route.userRoutes() {
             val user = transaction {
                 return@transaction User.find {
                     (Users.emailAddress eq loginRequest.emailAddress) and (Users.password eq loginRequest.password)
-                }.first()
-            }
+                }.firstOrNull()
+            } ?: return@post call.respond(HttpStatusCode.BadRequest)
 
             val token = JWT.create()
                 .withAudience(this.application.environment.config.property("ktor.jwt.audience").getString())

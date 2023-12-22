@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.AccountCircle
@@ -43,23 +45,33 @@ sealed class Screen(val route: String, val title: String) {
     object Cars : Screen("cars", "Alle auto's")
     object MyCars : Screen("my-cars", "Mijn auto's")
     object Login : Screen("login", "Inloggen")
+    object Register : Screen("register", "Registreren")
 }
 
 
-data class NavigationData(
+/**
+ * A wrapper data class for all data required to render
+ * every navigatable screen in the app.
+ */
+data class ApplicationData(
     val drawerState: DrawerState,
     val navigationController: NavController,
-    val userRepository: UserRepository
+    val userRepository: UserRepository,
+    val snackbarHostState: SnackbarHostState,
 )
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Navigation(navigationData: NavigationData, viewTitle: String, content: @Composable () -> Unit) {
+fun ApplicationWrapper(
+    appData: ApplicationData,
+    viewTitle: String,
+    content: @Composable () -> Unit
+) {
     val coroutineScope = rememberCoroutineScope()
 
     return ModalNavigationDrawer(
-        drawerState = navigationData.drawerState,
+        drawerState = appData.drawerState,
         drawerContent = {
             ModalDrawerSheet {
                 Row(
@@ -73,7 +85,7 @@ fun Navigation(navigationData: NavigationData, viewTitle: String, content: @Comp
                         fontSize = 25.sp,
                         modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp)
                     )
-                    IconButton(onClick = { coroutineScope.launch { navigationData.drawerState.close() } }) {
+                    IconButton(onClick = { coroutineScope.launch { appData.drawerState.close() } }) {
                         Icon(
                             imageVector = Icons.Rounded.Close,
                             contentDescription = "Menu sluiten",
@@ -95,14 +107,14 @@ fun Navigation(navigationData: NavigationData, viewTitle: String, content: @Comp
                             Text(text = "Alle auto's", modifier = Modifier.padding(start = 7.dp))
                         }
                     },
-                    selected = navigationData.navigationController.currentBackStackEntry?.destination?.route == "cars",
+                    selected = appData.navigationController.currentBackStackEntry?.destination?.route == "cars",
                     onClick = {
-                        navigationData.navigationController.navigate("cars")
-                        coroutineScope.launch { navigationData.drawerState.close() }
+                        appData.navigationController.navigate("cars")
+                        coroutineScope.launch { appData.drawerState.close() }
                     }
                 )
 
-                if (navigationData.userRepository.loggedInUser != null) {
+                if (appData.userRepository.loggedInUser != null) {
                     NavigationDrawerItem(
                         label = {
                             Row(
@@ -120,10 +132,10 @@ fun Navigation(navigationData: NavigationData, viewTitle: String, content: @Comp
                                 )
                             }
                         },
-                        selected = navigationData.navigationController.currentDestination?.route == "my-cars",
+                        selected = appData.navigationController.currentDestination?.route == "my-cars",
                         onClick = {
-                            navigationData.navigationController.navigate("my-cars")
-                            coroutineScope.launch { navigationData.drawerState.close() }
+                            appData.navigationController.navigate("my-cars")
+                            coroutineScope.launch { appData.drawerState.close() }
                         }
                     )
                 }
@@ -142,16 +154,17 @@ fun Navigation(navigationData: NavigationData, viewTitle: String, content: @Comp
                             Text(text = "Inloggen", modifier = Modifier.padding(start = 7.dp))
                         }
                     },
-                    selected = navigationData.navigationController.currentBackStackEntry?.destination?.route == "login",
+                    selected = appData.navigationController.currentBackStackEntry?.destination?.route == "login",
                     onClick = {
-                        navigationData.navigationController.navigate("login")
-                        coroutineScope.launch { navigationData.drawerState.close() }
+                        appData.navigationController.navigate("login")
+                        coroutineScope.launch { appData.drawerState.close() }
                     }
                 )
             }
         }
     ) {
         Scaffold(
+            snackbarHost = { SnackbarHost(hostState = appData.snackbarHostState) },
             topBar = {
                 TopAppBar(
                     title = {
@@ -163,7 +176,7 @@ fun Navigation(navigationData: NavigationData, viewTitle: String, content: @Comp
                         titleContentColor = Color.White
                     ),
                     navigationIcon = {
-                        IconButton(onClick = { coroutineScope.launch { navigationData.drawerState.open() } }) {
+                        IconButton(onClick = { coroutineScope.launch { appData.drawerState.open() } }) {
                             Icon(
                                 imageVector = Icons.Filled.Menu,
                                 contentDescription = "Menu"

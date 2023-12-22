@@ -15,3 +15,13 @@ data class UserDTO(
     val latitude: Float,
     val longitude: Float,
 )
+
+
+data class LoginRequest(
+    val emailAddress: String,
+    val password: String
+)
+
+data class LoginResponse(
+    val token: String
+)
