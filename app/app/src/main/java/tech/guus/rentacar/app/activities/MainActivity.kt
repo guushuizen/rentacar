@@ -15,11 +15,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import tech.guus.rentacar.app.AppContainer
 import tech.guus.rentacar.app.ui.theme.RentACarTheme

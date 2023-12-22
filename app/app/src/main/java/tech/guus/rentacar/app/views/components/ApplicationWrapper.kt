@@ -13,6 +13,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Home
@@ -156,26 +157,54 @@ fun ApplicationWrapper(
                     )
                 }
 
-                NavigationDrawerItem(
-                    label = {
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.AccountCircle,
-                                contentDescription = "Inloggen",
-                                modifier = Modifier.size(25.dp)
-                            )
-                            Text(text = "Inloggen", modifier = Modifier.padding(start = 7.dp))
+                if (loggedInUser == null) {
+                    NavigationDrawerItem(
+                        label = {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.AccountCircle,
+                                    contentDescription = "Inloggen",
+                                    modifier = Modifier.size(25.dp)
+                                )
+                                Text(text = "Inloggen", modifier = Modifier.padding(start = 7.dp))
+                            }
+                        },
+                        selected = appData.navigationController.currentBackStackEntry?.destination?.route == "login",
+                        onClick = {
+                            appData.navigationController.navigate("login")
+                            coroutineScope.launch { appData.drawerState.close() }
                         }
-                    },
-                    selected = appData.navigationController.currentBackStackEntry?.destination?.route == "login",
-                    onClick = {
-                        appData.navigationController.navigate("login")
-                        coroutineScope.launch { appData.drawerState.close() }
-                    }
-                )
+                    )
+                } else {
+                    NavigationDrawerItem(
+                        label = {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.ExitToApp,
+                                    contentDescription = "Uitloggen",
+                                    modifier = Modifier.size(25.dp)
+                                )
+                                Text(text = "Uitloggen", modifier = Modifier.padding(start = 7.dp))
+                            }
+                        },
+                        selected = appData.navigationController.currentBackStackEntry?.destination?.route == "login",
+                        onClick = {
+                            coroutineScope.launch {
+                                appData.userRepository.logout()
+
+                                appData.navigationController.navigate(Screen.Cars.route)
+
+                                appData.drawerState.close()
+                            }
+                        }
+                    )
+                }
             }
         }
     ) {

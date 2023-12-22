@@ -9,16 +9,10 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.http.Headers
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
 import tech.guus.rentacar.app.models.AppPreferences
 import tech.guus.rentacar.app.models.AppPreferencesKeys
 import tech.guus.rentacar.app.models.LoginRequest
@@ -46,6 +40,11 @@ abstract class UserRepository {
      * Attempts to login with the stored authentication token.
      */
     abstract suspend fun attemptCachedLogin()
+
+    /**
+     * Logs out the currently logged in user
+     */
+    abstract suspend fun logout()
 }
 
 class UserRepositoryImpl(
@@ -98,5 +97,13 @@ class UserRepositoryImpl(
             return
 
         this.loggedInUser = response.body<UserDTO>()
+    }
+
+    override suspend fun logout() {
+        this.dataStore.edit {
+            it.clear()
+        }
+
+        this.loggedInUser = null;
     }
 }
