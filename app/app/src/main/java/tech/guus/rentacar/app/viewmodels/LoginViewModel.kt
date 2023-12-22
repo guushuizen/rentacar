@@ -52,7 +52,9 @@ class LoginViewModel(
 
             userRepository.storeToken(token)
 
-            this@LoginViewModel.snackbarHostState.showSnackbar("Succesvol ingelogd")
+            viewModelScope.launch {
+                this@LoginViewModel.snackbarHostState.showSnackbar("Succesvol ingelogd")
+            }
 
             this@LoginViewModel.navController.navigate(Screen.Cars.route)
         }

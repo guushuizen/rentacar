@@ -39,7 +39,7 @@ fun Route.userRoutes() {
                 .withExpiresAt(Date(System.currentTimeMillis() + 60000))
                 .sign(Algorithm.HMAC256(this.application.environment.config.property("ktor.jwt.secret").getString()))
 
-            return@post call.respond(hashMapOf("token" to token))
+            return@post call.respond(hashMapOf("token" to token, "user" to UserDTO(user)))
         }
     }
 

@@ -70,6 +70,8 @@ fun ApplicationWrapper(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
+    val loggedInUser = appData.userRepository.loggedInUser
+
     return ModalNavigationDrawer(
         drawerState = appData.drawerState,
         drawerContent = {
@@ -93,6 +95,20 @@ fun ApplicationWrapper(
                         )
                     }
                 }
+
+                if (loggedInUser != null) {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = "Welkom, ${loggedInUser.firstName}",
+                            modifier = Modifier.padding(start = 7.dp)
+                        )
+                    }
+                }
+
                 NavigationDrawerItem(
                     label = {
                         Row(

@@ -45,7 +45,11 @@ class UserRepositoryImpl(
         if (response.status != HttpStatusCode.OK)
             return null
 
-        return response.body<LoginResponse>().token
+        val body = response.body<LoginResponse>()
+
+        this.loggedInUser = body.user
+
+        return body.token
     }
 
     override suspend fun storeToken(token: String) {
