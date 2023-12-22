@@ -5,9 +5,21 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.http.Headers
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
+import tech.guus.rentacar.app.models.AppPreferences
 import tech.guus.rentacar.app.models.AppPreferencesKeys
 import tech.guus.rentacar.app.models.LoginRequest
 import tech.guus.rentacar.app.models.LoginResponse
@@ -29,6 +41,11 @@ abstract class UserRepository {
      * Persists the authentication token on the device's local storage.
      */
     abstract suspend fun storeToken(token: String)
+
+    /**
+     * Attempts to login with the stored authentication token.
+     */
+    abstract suspend fun attemptCachedLogin()
 }
 
 class UserRepositoryImpl(
@@ -56,5 +73,30 @@ class UserRepositoryImpl(
         this.dataStore.edit {
             it[AppPreferencesKeys.token] = token
         }
+    }
+
+    private suspend fun getStoredToken(): String? {
+        val preferences: Flow<AppPreferences> = this.dataStore.data
+            .map {
+                AppPreferences(token = it[AppPreferencesKeys.token])
+            }
+
+        return preferences.first().token
+    }
+
+    override suspend fun attemptCachedLogin() {
+        if (this.loggedInUser != null)
+            return
+
+        val token = getStoredToken() ?: return
+
+        val response = this.httpClient.get("users") {
+            header("Authorization", "Bearer $token")
+        }
+
+        if (response.status != HttpStatusCode.OK)
+            return
+
+        this.loggedInUser = response.body<UserDTO>()
     }
 }

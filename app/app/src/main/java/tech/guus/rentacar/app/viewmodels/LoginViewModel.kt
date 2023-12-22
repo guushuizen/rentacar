@@ -4,6 +4,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.ui.focus.FocusManager
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,7 +53,7 @@ class LoginViewModel(
 
             userRepository.storeToken(token)
 
-            viewModelScope.launch {
+            async {
                 this@LoginViewModel.snackbarHostState.showSnackbar("Succesvol ingelogd")
             }
 

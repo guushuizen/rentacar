@@ -18,6 +18,7 @@ import tech.guus.rentacarapi.requests.CreateUserRequest
 import tech.guus.rentacarapi.requests.LoginRequest
 import java.sql.BatchUpdateException
 import java.sql.SQLIntegrityConstraintViolationException
+import java.time.*
 import java.util.*
 
 
@@ -36,7 +37,7 @@ fun Route.userRoutes() {
                 .withAudience(this.application.environment.config.property("ktor.jwt.audience").getString())
                 .withIssuer(this.application.environment.config.property("ktor.jwt.issuer").getString())
                 .withClaim("emailAddress", user.emailAddress)
-                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+                .withExpiresAt(ZonedDateTime.now().plusYears(5).toInstant())
                 .sign(Algorithm.HMAC256(this.application.environment.config.property("ktor.jwt.secret").getString()))
 
             return@post call.respond(hashMapOf("token" to token, "user" to UserDTO(user)))
