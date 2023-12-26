@@ -13,6 +13,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.rounded.Close
@@ -175,6 +176,27 @@ fun ApplicationWrapper(
                         selected = appData.navigationController.currentBackStackEntry?.destination?.route == "login",
                         onClick = {
                             appData.navigationController.navigate("login")
+                            coroutineScope.launch { appData.drawerState.close() }
+                        }
+                    )
+
+                    NavigationDrawerItem(
+                        label = {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Edit,
+                                    contentDescription = "Registeren",
+                                    modifier = Modifier.size(25.dp)
+                                )
+                                Text(text = "Registeren", modifier = Modifier.padding(start = 7.dp))
+                            }
+                        },
+                        selected = appData.navigationController.currentBackStackEntry?.destination?.route == Screen.Register.route,
+                        onClick = {
+                            appData.navigationController.navigate(Screen.Register.route)
                             coroutineScope.launch { appData.drawerState.close() }
                         }
                     )

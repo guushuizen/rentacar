@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -23,8 +22,10 @@ import tech.guus.rentacar.app.AppContainer
 import tech.guus.rentacar.app.ui.theme.RentACarTheme
 import tech.guus.rentacar.app.viewmodels.CarListViewModel
 import tech.guus.rentacar.app.viewmodels.LoginViewModel
+import tech.guus.rentacar.app.viewmodels.RegisterViewModel
 import tech.guus.rentacar.app.views.CarListView
 import tech.guus.rentacar.app.views.LoginView
+import tech.guus.rentacar.app.views.RegisterView
 import tech.guus.rentacar.app.views.components.ApplicationData
 import tech.guus.rentacar.app.views.components.ApplicationWrapper
 import tech.guus.rentacar.app.views.components.Screen
@@ -34,7 +35,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val container = AppContainer(this.applicationContext.dataStore)
+        val container = AppContainer(this)
 
         runBlocking { container.userRepository.attemptCachedLogin() }
 
@@ -92,7 +93,13 @@ fun MainComposition(
 
         composable(Screen.Register.route) {
             ApplicationWrapper(appData = applicationData, viewTitle = Screen.Register.title) {
-                Text(text = "Register")
+                RegisterView(
+                    viewModel = RegisterViewModel(
+                        snackbarHostState = applicationData.snackbarHostState,
+                        locationService = container.locationService,
+                        activity = container.activity,
+                    ),
+                )
             }
         }
     }

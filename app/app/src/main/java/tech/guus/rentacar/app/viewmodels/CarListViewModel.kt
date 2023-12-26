@@ -17,8 +17,6 @@ class CarListViewModel(
     private val carRepository: CarRepository
 ) : BaseViewModel() {
 
-    override val screenTitle: String = "Alle auto's"
-
     private val _loading = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 

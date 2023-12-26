@@ -4,6 +4,4 @@ import androidx.lifecycle.ViewModel
 
 abstract class BaseViewModel : ViewModel() {
 
-    abstract val screenTitle: String
-
 }

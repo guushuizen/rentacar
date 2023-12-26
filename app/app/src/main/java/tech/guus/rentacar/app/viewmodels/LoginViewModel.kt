@@ -18,10 +18,6 @@ class LoginViewModel(
     private val snackbarHostState: SnackbarHostState,
     private val focusManager: FocusManager
 ) : BaseViewModel() {
-    override val screenTitle: String = "Inloggen"
-
-    private val _error = MutableStateFlow(false)
-    val error: StateFlow<Boolean> = _error.asStateFlow()
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
