@@ -63,7 +63,12 @@ class UserRepositoryImpl(
 
         val body = response.body<LoginResponse>()
 
-        this.loggedInUser = body.user
+        val token = body.token
+
+        val userResponse = httpClient.get("users") {
+            header("Authorization", "Bearer $token")
+        }
+        this.loggedInUser = userResponse.body<UserDTO>()
 
         return body.token
     }
