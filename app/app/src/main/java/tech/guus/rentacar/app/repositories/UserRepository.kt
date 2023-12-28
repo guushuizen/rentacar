@@ -9,12 +9,15 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import tech.guus.rentacar.app.models.AppPreferences
 import tech.guus.rentacar.app.models.AppPreferencesKeys
+import tech.guus.rentacar.app.models.CreateUserRequest
 import tech.guus.rentacar.app.models.LoginRequest
 import tech.guus.rentacar.app.models.LoginResponse
 import tech.guus.rentacar.app.models.UserDTO
@@ -45,6 +48,14 @@ abstract class UserRepository {
      * Logs out the currently logged in user
      */
     abstract suspend fun logout()
+
+    /**
+     * Registers a new user with the given information.
+     * Returns a boolean indiciating success or failure.
+     *
+     * @param createUserRequest The information of the user to create
+     */
+    abstract suspend fun registerUser(createUserRequest: CreateUserRequest): Boolean
 }
 
 class UserRepositoryImpl(
@@ -110,5 +121,19 @@ class UserRepositoryImpl(
         }
 
         this.loggedInUser = null;
+    }
+
+    override suspend fun registerUser(createUserRequest: CreateUserRequest): Boolean {
+        val response = this.httpClient.post("users") {
+            setBody(createUserRequest)
+            contentType(ContentType.Application.Json)
+        }
+
+        if (response.status != HttpStatusCode.Created)
+            return false
+
+        this.login(createUserRequest.emailAddress, createUserRequest.password)
+
+        return true
     }
 }

@@ -99,7 +99,8 @@ fun MainComposition(
                     viewModel = RegisterViewModel(
                         snackbarHostState = applicationData.snackbarHostState,
                         locationService = container.locationService,
-                        activity = container.activity,
+                        userRepository = applicationData.userRepository,
+                        navigationController = applicationData.navigationController,
                     ),
                     appData = applicationData,
                 )

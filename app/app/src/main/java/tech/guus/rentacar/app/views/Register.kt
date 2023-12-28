@@ -60,7 +60,7 @@ fun RegisterView(
         snackbarHost = { SnackbarHost(hostState = appData.snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*TODO*/ },
+                onClick = { viewModel.register() },
             ) {
                 Icon(Icons.Filled.Check, contentDescription = "Registreren")
             }
@@ -101,9 +101,9 @@ fun RegisterView(
                     ) {
                         TextField(
                             value = firstName.value,
-                            onValueChange = { viewModel.updateFirstName(it) },
+                            onValueChange = { v -> viewModel.updateFirstName(v) },
                             singleLine = true,
-                            label = { Text(text = "Voornaam") }
+                            label = { Text(text = "Voornaam") },
                         )
                     }
 
