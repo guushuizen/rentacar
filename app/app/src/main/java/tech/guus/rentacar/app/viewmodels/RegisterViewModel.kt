@@ -98,7 +98,7 @@ class RegisterViewModel(
         _houseNumber.value = locationInformation.address.house_number
         _postcode.value = locationInformation.address.postcode
         _city.value = locationInformation.address.city
-        _country.value = locationInformation.address.country_code
+        _country.value = locationInformation.address.country_code.uppercase()
 
         coroutineScope {
             snackbarHostState.showSnackbar(message = "De adresgegevens zijn ingevuld.")

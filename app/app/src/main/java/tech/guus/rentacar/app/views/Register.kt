@@ -101,7 +101,6 @@ fun RegisterView(
             }
         }
 
-
         Button(
             onClick = { launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION) },
             modifier = Modifier
