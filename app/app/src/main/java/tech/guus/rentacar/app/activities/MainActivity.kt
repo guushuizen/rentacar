@@ -70,17 +70,19 @@ fun MainComposition(
             snackbarHostState = snackbarHostState,
         )
         composable("cars") {
-            ApplicationWrapper(appData = applicationData, viewTitle = Screen.Cars.title) {
+            ApplicationWrapper(appData = applicationData) {
                 CarListView(
-                    carListViewModel = CarListViewModel(container.carRepository)
+                    carListViewModel = CarListViewModel(container.carRepository),
+                    appData = applicationData
                 )
             }
         }
 
         composable(Screen.Login.route) {
-            ApplicationWrapper(appData = applicationData, viewTitle = Screen.Login.title) {
+            ApplicationWrapper(appData = applicationData) {
                 LoginView(
                     onClickRegistration = { navController.navigate(Screen.Register.route) },
+                    appData = applicationData,
                     viewModel = LoginViewModel(
                         userRepository = container.userRepository,
                         navController = navController,
@@ -92,13 +94,14 @@ fun MainComposition(
         }
 
         composable(Screen.Register.route) {
-            ApplicationWrapper(appData = applicationData, viewTitle = Screen.Register.title) {
+            ApplicationWrapper(appData = applicationData) {
                 RegisterView(
                     viewModel = RegisterViewModel(
                         snackbarHostState = applicationData.snackbarHostState,
                         locationService = container.locationService,
                         activity = container.activity,
                     ),
+                    appData = applicationData,
                 )
             }
         }
