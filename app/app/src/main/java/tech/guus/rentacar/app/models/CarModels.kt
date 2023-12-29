@@ -19,6 +19,7 @@ data class ListedCar(
     val status: String,
     val locationLatitude: Float,
     val locationLongitude: Float,
+    val locationString: String,
     val photos: List<String>,
     val reservedDates: List<Pair<String, String>>  // Should become datetimes at some point.
 )
