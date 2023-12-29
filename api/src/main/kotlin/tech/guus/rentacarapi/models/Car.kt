@@ -72,6 +72,7 @@ data class CarDTO(
     val status: CarStatus,
     val locationLatitude: Float,
     val locationLongitude: Float,
+    val locationString: String,
     val photos: List<String>,
     val reservedDates: List<List<String>>
 ) {
@@ -87,6 +88,7 @@ data class CarDTO(
         status = car.status,
         locationLatitude = car.owner.latitude,
         locationLongitude = car.owner.longitude,
+        locationString = "${car.owner.postalCode} ${car.owner.city}",
         photos = car.photos.map { "uploads/${it.path}" },
         reservedDates = car.reservations
             .orderBy(Reservations.startDateTimeUtc to SortOrder.ASC)
