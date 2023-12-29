@@ -150,7 +150,7 @@ fun RegisterView(
 
                 val launcher =
                     rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-                        if (it) {
+                        granted -> if (granted) {
                             viewModel.determineLocation()
                         }
                     }

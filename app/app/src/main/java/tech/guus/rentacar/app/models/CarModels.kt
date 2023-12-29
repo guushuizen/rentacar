@@ -22,3 +22,16 @@ data class ListedCar(
     val photos: List<String>,
     val reservedDates: List<Pair<String, String>>  // Should become datetimes at some point.
 )
+
+
+data class AvailableFilterValues(
+    val availableBrandNames: List<String>,
+    val availableModelNames: List<String>,
+)
+
+data class ChosenFilterValues(
+    val chosenBrandName: String?,
+    val chosenModelName: String?,
+    val chosenCoordinates: Coordinates?,
+    val chosenRadius: Int?
+)

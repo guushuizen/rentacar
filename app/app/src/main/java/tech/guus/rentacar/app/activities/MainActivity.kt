@@ -72,7 +72,11 @@ fun MainComposition(
         composable("cars") {
             ApplicationWrapper(appData = applicationData) {
                 CarListView(
-                    carListViewModel = CarListViewModel(container.carRepository),
+                    carListViewModel = CarListViewModel(
+                        carRepository = container.carRepository,
+                        locationService = container.locationService,
+                        snackbarHostState = applicationData.snackbarHostState,
+                    ),
                     appData = applicationData
                 )
             }
