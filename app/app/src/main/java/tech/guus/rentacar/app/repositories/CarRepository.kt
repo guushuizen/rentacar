@@ -14,10 +14,12 @@ import tech.guus.rentacar.app.models.ListedCar
 abstract class CarRepository {
 
     abstract suspend fun getAllCars(filterValues: ChosenFilterValues? = null): List<ListedCar>
-
+    abstract fun getCar(carUuid: String): ListedCar?
 }
 
 class CarRepositoryImpl(private val httpClient: HttpClient) : CarRepository() {
+
+    private var cars: List<ListedCar> = emptyList()
     override suspend fun getAllCars(filterValues: ChosenFilterValues?): List<ListedCar> {
         val listResponse: HttpResponse = httpClient.get("${BASE_URL}/cars") {
             if (filterValues != null) {
@@ -35,14 +37,23 @@ class CarRepositoryImpl(private val httpClient: HttpClient) : CarRepository() {
             }
         }
 
-        return listResponse.body<ListCarResponse>().cars.let { list ->
+        val parsedCars = listResponse.body<ListCarResponse>().cars.let { list ->
             return@let list.map { car ->
                 return@map car.copy(
                     photos = car.photos.map {photoPath ->
                         "${BASE_URL}/${photoPath}"
-                    }
+                    },
                 )
             }
         }
+
+        if (filterValues?.hasNoFilters() != false)
+            this.cars = parsedCars
+
+        return parsedCars
+    }
+
+    override fun getCar(carUuid: String): ListedCar? {
+        return cars.firstOrNull { it.id.toString() == carUuid }
     }
 }

@@ -1,5 +1,10 @@
 package tech.guus.rentacar.app.models
 
+import androidx.compose.ui.graphics.Color
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.UUID
 
 
@@ -21,7 +26,71 @@ data class ListedCar(
     val locationLongitude: Float,
     val locationString: String,
     val photos: List<String>,
-    val reservedDates: List<Pair<String, String>>  // Should become datetimes at some point.
+    val reservedDates: List<List<String>>  // Should become datetimes at some point.
+) {
+    fun title(): String {
+        return "$brandName $modelName"
+    }
+
+    fun humanFuelType(): String {
+        when (fuelType) {
+            "ICE" -> return "Verbrandingsmotor"
+            "FCEV" -> return "Waterstof"
+            "BEV" -> return "Elektrisch"
+            else -> return "Onbekend"
+        }
+    }
+
+    fun renderAgenda(): List<DayInAgenda> {
+        val dates = mutableMapOf<LocalDate, DayInAgenda>()
+
+        this.reservedDates.map {
+            val startInstant = Instant.parse(it[0]).atZone(ZoneOffset.UTC)
+            val endInstant = Instant.parse(it[1]).atZone(ZoneOffset.UTC)
+            val startDate = startInstant.toLocalDate()
+            val endDate = endInstant.toLocalDate()
+            val delta = endDate.compareTo(startDate)
+
+            for (i in 0..delta) {
+                val currentDate = startDate.plusDays(i.toLong())
+                val isFullDayBooking = currentDate.isAfter(startDate) && currentDate.isBefore(endDate)
+
+                val alreadyExistingDay = dates[currentDate]
+                if (alreadyExistingDay == null) {
+                    dates[currentDate] = DayInAgenda(
+                        date = currentDate,
+                        state = if (isFullDayBooking) DayState.FULLY_BOOKED else DayState.PARTIALLY_BOOKED,
+                        reservations = listOf(startInstant to endInstant)
+                    )
+                } else {
+                    dates[currentDate] = alreadyExistingDay.copy(
+                        state = DayState.FULLY_BOOKED, // A car can't have >2 reservations on a single day.
+                        reservations = alreadyExistingDay.reservations.plus(startInstant to endInstant)
+                    )
+                }
+            }
+        }
+
+        return dates.values.toList().sortedBy { it.date }
+    }
+}
+
+enum class DayState {
+    FULLY_BOOKED, PARTIALLY_BOOKED, EMPTY;
+
+    fun toColor(): Color {
+        return when (this) {
+            FULLY_BOOKED -> Color(0xFFD4455B)
+            PARTIALLY_BOOKED -> Color(0xFFF8C325)
+            EMPTY -> Color(0xFF1BAE9F)
+        }
+    }
+}
+
+data class DayInAgenda(
+    val date: LocalDate,
+    val state: DayState,
+    val reservations: List<Pair<ZonedDateTime, ZonedDateTime>>
 )
 
 
@@ -35,4 +104,8 @@ data class ChosenFilterValues(
     val chosenModelName: String?,
     val chosenCoordinates: Coordinates?,
     val chosenRadius: Int?
-)
+) {
+    fun hasNoFilters(): Boolean {
+        return chosenBrandName == null && chosenModelName == null && chosenCoordinates == null && chosenRadius == null
+    }
+}

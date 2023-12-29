@@ -86,6 +86,7 @@ dependencies {
     implementation("androidx.compose.material:material")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation(kotlin("test"))
 
     androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

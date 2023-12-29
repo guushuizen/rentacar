@@ -40,6 +40,7 @@ sealed class Screen(val route: String, val title: String) {
     object MyCars : Screen("my-cars", "Mijn auto's")
     object Login : Screen("login", "Inloggen")
     object Register : Screen("register", "Registreren")
+    object CarDetails : Screen("cars/{carUuid}", "Auto details")
 }
 
 
@@ -116,7 +117,7 @@ fun ApplicationWrapper(
                             Text(text = "Alle auto's", modifier = Modifier.padding(start = 7.dp))
                         }
                     },
-                    selected = appData.navigationController.currentBackStackEntry?.destination?.route == "cars",
+                    selected = appData.navigationController.currentBackStackEntry?.destination?.route?.matches(Regex("cars.*")) ?: false,
                     onClick = {
                         appData.navigationController.navigate("cars")
                         coroutineScope.launch { appData.drawerState.close() }

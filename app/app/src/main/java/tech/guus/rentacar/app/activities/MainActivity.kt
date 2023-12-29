@@ -20,9 +20,11 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.runBlocking
 import tech.guus.rentacar.app.AppContainer
 import tech.guus.rentacar.app.ui.theme.RentACarTheme
+import tech.guus.rentacar.app.viewmodels.CarDetailViewModel
 import tech.guus.rentacar.app.viewmodels.CarListViewModel
 import tech.guus.rentacar.app.viewmodels.LoginViewModel
 import tech.guus.rentacar.app.viewmodels.RegisterViewModel
+import tech.guus.rentacar.app.views.CarDetailView
 import tech.guus.rentacar.app.views.CarListView
 import tech.guus.rentacar.app.views.LoginView
 import tech.guus.rentacar.app.views.RegisterView
@@ -107,6 +109,22 @@ fun MainComposition(
                         navigationController = applicationData.navigationController,
                     ),
                     appData = applicationData,
+                )
+            }
+        }
+
+        composable(Screen.CarDetails.route) {
+            val carUuid = it.arguments?.getString("carUuid") ?: return@composable
+
+            ApplicationWrapper(appData = applicationData) {
+                CarDetailView(
+                    viewModel = CarDetailViewModel(
+                        carUuid = carUuid,
+                        carRepository = container.carRepository,
+                        navigationController = navController,
+                        snackbarHostState = applicationData.snackbarHostState
+                    ),
+                    appData = applicationData
                 )
             }
         }

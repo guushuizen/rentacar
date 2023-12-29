@@ -61,7 +61,7 @@ fun RentACarTheme(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarDefaults.RentACar(): TopAppBarColors {
-    return TopAppBarDefaults.mediumTopAppBarColors(
+    return mediumTopAppBarColors(
         containerColor = MaterialTheme.colorScheme.primary,
         navigationIconContentColor = Color.White,
         titleContentColor = Color.White

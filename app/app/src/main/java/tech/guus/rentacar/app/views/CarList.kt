@@ -139,7 +139,12 @@ fun CarListView(
                 ) {
                     cars.forEach {
                         item {
-                            CarListItem(car = it)
+                            CarListItem(
+                                car = it,
+                                onClick = {
+                                    appData.navigationController.navigate("cars/${it.id}")
+                                }
+                            )
                         }
                     }
                 }

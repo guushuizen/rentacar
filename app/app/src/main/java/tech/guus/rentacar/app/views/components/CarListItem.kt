@@ -1,5 +1,6 @@
 package tech.guus.rentacar.app.views.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,16 +21,19 @@ import java.math.RoundingMode
 
 
 @Composable
-fun CarListItem(car: ListedCar) {
+fun CarListItem(car: ListedCar, onClick: () -> Unit) {
     if (car.ratePerHour == null) return
 
-    return Box(modifier = Modifier.padding(vertical = 6.dp, horizontal = 8.dp)) {
+    return Box(
+        modifier = Modifier.padding(vertical = 6.dp, horizontal = 8.dp),
+    ) {
         ElevatedCard(
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 6.dp
             ),
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable(onClick = onClick)
         ) {
             Column {
                 AsyncImage(
