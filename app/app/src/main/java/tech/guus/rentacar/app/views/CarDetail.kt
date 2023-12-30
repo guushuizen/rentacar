@@ -97,7 +97,7 @@ fun CarDetailView(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }) {
+            FloatingActionButton(onClick = { viewModel.openReservationPopup() }) {
                 Icon(Icons.Filled.DateRange, contentDescription = "Maak een reservering")
             }
         }

@@ -22,10 +22,12 @@ import tech.guus.rentacar.app.AppContainer
 import tech.guus.rentacar.app.ui.theme.RentACarTheme
 import tech.guus.rentacar.app.viewmodels.CarDetailViewModel
 import tech.guus.rentacar.app.viewmodels.CarListViewModel
+import tech.guus.rentacar.app.viewmodels.CarReservationViewModel
 import tech.guus.rentacar.app.viewmodels.LoginViewModel
 import tech.guus.rentacar.app.viewmodels.RegisterViewModel
 import tech.guus.rentacar.app.views.CarDetailView
 import tech.guus.rentacar.app.views.CarListView
+import tech.guus.rentacar.app.views.CarReservation
 import tech.guus.rentacar.app.views.LoginView
 import tech.guus.rentacar.app.views.RegisterView
 import tech.guus.rentacar.app.views.components.ApplicationData
@@ -122,11 +124,28 @@ fun MainComposition(
                         carUuid = carUuid,
                         carRepository = container.carRepository,
                         navigationController = navController,
-                        snackbarHostState = applicationData.snackbarHostState
+                        snackbarHostState = applicationData.snackbarHostState,
+                        userRepository = container.userRepository,
                     ),
                     appData = applicationData
                 )
             }
+        }
+
+        composable(Screen.CarReservation.route) {
+            val carUuid = it.arguments?.getString("carUuid") ?: return@composable
+
+                ApplicationWrapper(appData = applicationData) {
+                    CarReservation(
+                        viewModel = CarReservationViewModel(
+                            carUuid = carUuid,
+                            carRepository = container.carRepository,
+                            navigationController = navController,
+                            snackbarHostState = applicationData.snackbarHostState
+                        ),
+                        appData = applicationData
+                    )
+                }
         }
     }
 }

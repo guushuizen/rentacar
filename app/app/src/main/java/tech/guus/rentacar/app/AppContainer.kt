@@ -36,12 +36,12 @@ class AppContainer(val activity: ComponentActivity) {
         }
     }
 
-    val carRepository: CarRepository = CarRepositoryImpl(httpClient)
-
     val userRepository: UserRepository = UserRepositoryImpl(
         httpClient,
         this.activity.applicationContext.dataStore
     )
+
+    val carRepository: CarRepository = CarRepositoryImpl(httpClient, userRepository)
 
     val locationService = LocationService(
         activity = this.activity,

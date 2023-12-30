@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -14,6 +15,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import tech.guus.rentacar.app.models.AppPreferences
 import tech.guus.rentacar.app.models.AppPreferencesKeys
@@ -56,6 +58,11 @@ abstract class UserRepository {
      * @param createUserRequest The information of the user to create
      */
     abstract suspend fun registerUser(createUserRequest: CreateUserRequest): Boolean
+
+    /**
+     * Returns the stored authentication token for the currently authenticated user.
+     */
+    abstract suspend fun getToken(): String?
 }
 
 class UserRepositoryImpl(
@@ -81,6 +88,8 @@ class UserRepositoryImpl(
         }
         this.loggedInUser = userResponse.body<UserDTO>()
 
+        adjustHttpClientForAuthenticatedRequests(token)
+
         return body.token
     }
 
@@ -90,20 +99,11 @@ class UserRepositoryImpl(
         }
     }
 
-    private suspend fun getStoredToken(): String? {
-        val preferences: Flow<AppPreferences> = this.dataStore.data
-            .map {
-                AppPreferences(token = it[AppPreferencesKeys.token])
-            }
-
-        return preferences.first().token
-    }
-
     override suspend fun attemptCachedLogin() {
         if (this.loggedInUser != null)
             return
 
-        val token = getStoredToken() ?: return
+        val token = getToken() ?: return
 
         val response = this.httpClient.get("users") {
             header("Authorization", "Bearer $token")
@@ -112,7 +112,17 @@ class UserRepositoryImpl(
         if (response.status != HttpStatusCode.OK)
             return
 
+        adjustHttpClientForAuthenticatedRequests(token)
+
         this.loggedInUser = response.body<UserDTO>()
+    }
+
+    private fun adjustHttpClientForAuthenticatedRequests(token: String) {
+        this.httpClient.config {
+            defaultRequest {
+                header("Authorization", "Bearer $token")
+            }
+        }
     }
 
     override suspend fun logout() {
@@ -135,5 +145,14 @@ class UserRepositoryImpl(
         this.login(createUserRequest.emailAddress, createUserRequest.password)
 
         return true
+    }
+
+    override suspend fun getToken(): String? {
+        val preferences: Flow<AppPreferences> = this.dataStore.data
+            .map {
+                AppPreferences(token = it[AppPreferencesKeys.token])
+            }
+
+        return preferences.firstOrNull()?.token
     }
 }

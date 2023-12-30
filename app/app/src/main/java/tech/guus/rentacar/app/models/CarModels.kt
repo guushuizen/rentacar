@@ -1,6 +1,7 @@
 package tech.guus.rentacar.app.models
 
 import androidx.compose.ui.graphics.Color
+import tech.guus.rentacar.app.BASE_URL
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -10,6 +11,18 @@ import java.util.UUID
 
 data class ListCarResponse(
     val cars: List<ListedCar>
+)
+
+data class ReserveCarRequest(
+    val startDateTime: String,
+    val endDateTime: String
+)
+
+data class ReserveCarResponse(
+    val startDateTime: String,
+    val endDateTime: String,
+    val totalPriceInCents: Long,
+    val reservedCar: ListedCar
 )
 
 data class ListedCar(
@@ -25,11 +38,21 @@ data class ListedCar(
     val locationLatitude: Float,
     val locationLongitude: Float,
     val locationString: String,
-    val photos: List<String>,
+    var photos: List<String>,
     val reservedDates: List<List<String>>  // Should become datetimes at some point.
 ) {
     fun title(): String {
         return "$brandName $modelName"
+    }
+
+    init {
+        photos = photos.map {photoPath ->
+            "$BASE_URL/${photoPath}"
+        }
+    }
+
+    fun renderPricePerHour(): String {
+        return "€${(ratePerHour ?: 0F).toBigDecimal().setScale(2)}/uur"
     }
 
     fun humanFuelType(): String {

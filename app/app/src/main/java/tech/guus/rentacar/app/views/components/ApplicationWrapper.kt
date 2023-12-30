@@ -41,6 +41,7 @@ sealed class Screen(val route: String, val title: String) {
     object Login : Screen("login", "Inloggen")
     object Register : Screen("register", "Registreren")
     object CarDetails : Screen("cars/{carUuid}", "Auto details")
+    object CarReservation : Screen("cars/{carUuid}/reservation", "Auto reserveren")
 }
 
 

@@ -3,48 +3,33 @@ package tech.guus.rentacar.app.viewmodels
 import androidx.compose.material.SnackbarHostState
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import tech.guus.rentacar.app.models.ListedCar
 import tech.guus.rentacar.app.repositories.CarRepository
+import tech.guus.rentacar.app.repositories.UserRepository
 import tech.guus.rentacar.app.views.components.Screen
 
-class CarDetailViewModel(
+open class CarDetailViewModel(
     private val carUuid: String,
-    private val carRepository: CarRepository,
+    val carRepository: CarRepository,
     private val navigationController: NavController,
     private val snackbarHostState: SnackbarHostState,
-) : BaseViewModel() {
+    private val userRepository: UserRepository,
+) : BaseCarViewModel(
+    carUuid,
+    carRepository,
+    navigationController,
+    snackbarHostState,
+) {
 
-    private val _loading = MutableStateFlow(true)
-    val loading: StateFlow<Boolean> = _loading.asStateFlow()
+    fun openReservationPopup() {
+        if (userRepository.loggedInUser == null) {
+            viewModelScope.launch {
+                snackbarHostState.showSnackbar("Je moet ingelogd zijn om een auto te reserveren!")
+            }
 
-    private val _car = MutableStateFlow<ListedCar?>(null)
-    val car: StateFlow<ListedCar?> = _car.asStateFlow()
-
-    init {
-        retrieveCarDetails()
-    }
-
-    private fun retrieveCarDetails() = viewModelScope.launch {
-        _loading.update { true }
-
-        val foundCar = carRepository.getCar(carUuid)
-
-        if (foundCar == null) {
-            navigateAway()
-            return@launch
+            return
         }
 
-        _car.update { foundCar }
-        _loading.update { false }
-    }
-
-    suspend fun navigateAway() {
-        navigationController.navigate(Screen.Cars.route)
-        snackbarHostState.showSnackbar("De auto kon niet gevonden worden!")
+        navigationController.navigate(Screen.CarReservation.route.replace("{carUuid}", carUuid))
     }
 }

@@ -60,7 +60,7 @@ fun LoginView(
             TopAppBar(
                 colors = TopAppBarDefaults.RentACar(),
                 title = {
-                    Text(text = Screen.Register.title, modifier = Modifier.padding(10.dp))
+                    Text(text = Screen.Login.title, modifier = Modifier.padding(10.dp))
                 },
                 navigationIcon = {
                     IconButton(onClick = { coroutineScope.launch { appData.drawerState.open() } }) {
@@ -74,7 +74,7 @@ fun LoginView(
         }
     ) {
         Box(modifier = Modifier.padding(it)) {
-            Column(modifier = Modifier.padding(horizontal = 10.dp)) {
+            Column(modifier = Modifier.padding(10.dp)) {
                 Text(
                     text = "Heb je al een account?",
                     fontSize = 20.sp,

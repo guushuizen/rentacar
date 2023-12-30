@@ -3,21 +3,37 @@ package tech.guus.rentacar.app.repositories
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import tech.guus.rentacar.app.BASE_URL
 import tech.guus.rentacar.app.models.ChosenFilterValues
 import tech.guus.rentacar.app.models.ListCarResponse
 import tech.guus.rentacar.app.models.ListedCar
+import tech.guus.rentacar.app.models.ReserveCarRequest
+import tech.guus.rentacar.app.models.ReserveCarResponse
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 
 abstract class CarRepository {
 
     abstract suspend fun getAllCars(filterValues: ChosenFilterValues? = null): List<ListedCar>
     abstract fun getCar(carUuid: String): ListedCar?
+    abstract suspend fun reserveCar(carUuid: String, startDateTime: LocalDateTime, endDateTime: LocalDateTime): String?
 }
 
-class CarRepositoryImpl(private val httpClient: HttpClient) : CarRepository() {
+class CarRepositoryImpl(
+    private val httpClient: HttpClient,
+    private val userRepository: UserRepository
+) : CarRepository() {
 
     private var cars: List<ListedCar> = emptyList()
     override suspend fun getAllCars(filterValues: ChosenFilterValues?): List<ListedCar> {
@@ -37,15 +53,7 @@ class CarRepositoryImpl(private val httpClient: HttpClient) : CarRepository() {
             }
         }
 
-        val parsedCars = listResponse.body<ListCarResponse>().cars.let { list ->
-            return@let list.map { car ->
-                return@map car.copy(
-                    photos = car.photos.map {photoPath ->
-                        "${BASE_URL}/${photoPath}"
-                    },
-                )
-            }
-        }
+        val parsedCars = listResponse.body<ListCarResponse>().cars
 
         if (filterValues?.hasNoFilters() != false)
             this.cars = parsedCars
@@ -55,5 +63,34 @@ class CarRepositoryImpl(private val httpClient: HttpClient) : CarRepository() {
 
     override fun getCar(carUuid: String): ListedCar? {
         return cars.firstOrNull { it.id.toString() == carUuid }
+    }
+
+    override suspend fun reserveCar(
+        carUuid: String,
+        startDateTime: LocalDateTime,
+        endDateTime: LocalDateTime
+    ): String? {
+        val response = this.httpClient.post("cars/${carUuid}/reserve") {
+            setBody(ReserveCarRequest(
+                startDateTime.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_INSTANT),
+                endDateTime.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_INSTANT)
+            ))
+            contentType(ContentType.Application.Json)
+            header("Authorization", "Bearer ${userRepository.getToken()}")
+        }
+
+        return if (response.status.value >= 400) {
+            response.bodyAsText()
+        } else if (response.status.value >= 500) {
+            "Er is iets misgegaan bij het reserveren van de auto. Probeer het later opnieuw."
+        } else {
+            val parsedResponse = response.body<ReserveCarResponse>()
+
+            this.cars = cars.map {
+                if (it.id == parsedResponse.reservedCar.id) parsedResponse.reservedCar else it
+            }
+
+            null
+        }
     }
 }

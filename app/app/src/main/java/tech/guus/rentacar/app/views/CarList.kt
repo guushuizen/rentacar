@@ -142,7 +142,9 @@ fun CarListView(
                             CarListItem(
                                 car = it,
                                 onClick = {
-                                    appData.navigationController.navigate("cars/${it.id}")
+                                    appData.navigationController.navigate(
+                                        Screen.CarDetails.route.replace("{carUuid}", it.id.toString())
+                                    )
                                 }
                             )
                         }
