@@ -118,7 +118,7 @@ suspend fun generateJwt(client: HttpClient, emailAddress: String = "guus@guus.te
             )
         )
     }
-    return jwtResponse.body<Map<String, String>>()["token"]
+    return jwtResponse.body<Map<String, Any>>()["token"] as String?
 }
 
 suspend fun createUser(client: HttpClient, body: CreateUserRequest): UserDTO {

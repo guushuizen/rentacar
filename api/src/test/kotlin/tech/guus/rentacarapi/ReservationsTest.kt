@@ -96,5 +96,15 @@ class ReservationsTest {
                 )
             )
         }.status)
+
+        assertEquals(HttpStatusCode.Conflict, customClient.post("/cars/${carToReserve.id}/reserve") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                ReserveCarRequest(
+                    startDateTime = now.plus(36, DateTimeUnit.HOUR).toJavaInstant(),
+                    endDateTime = now.plus(40, DateTimeUnit.HOUR).toJavaInstant()
+                )
+            )
+        }.status)
     }
 }

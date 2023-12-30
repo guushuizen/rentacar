@@ -43,7 +43,7 @@ fun Route.reservationRoutes() {
         val conflictingReservations = transaction {
             return@transaction car.reservations.any {
                 it.startDateTimeUtc.toInstant(ZoneOffset.UTC) <= requestBody.startDateTime
-                        && requestBody.endDateTime <= it.endDateTimeUtc.toInstant(ZoneOffset.UTC)
+                        || requestBody.endDateTime <= it.endDateTimeUtc.toInstant(ZoneOffset.UTC)
             }
         }
 
