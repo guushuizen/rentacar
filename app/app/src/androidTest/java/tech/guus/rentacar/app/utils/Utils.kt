@@ -1,7 +1,11 @@
 package tech.guus.rentacar.app.utils
 
+import android.support.test.uiautomator.UiDevice
+import android.support.test.uiautomator.UiObjectNotFoundException
+import android.support.test.uiautomator.UiSelector
 import tech.guus.rentacar.app.models.ListedCar
 import java.util.UUID
+
 
 fun generateDummyCar(): ListedCar {
     return ListedCar(
@@ -20,4 +24,11 @@ fun generateDummyCar(): ListedCar {
         status = "AVAILABLE",
         reservedDates = emptyList(),
     )
+}
+
+
+@Throws(UiObjectNotFoundException::class)
+fun grantPermission(device: UiDevice, permissionTitle: String?) {
+    val permissionEntry = device.findObject(UiSelector().text(permissionTitle))
+    permissionEntry.click()
 }

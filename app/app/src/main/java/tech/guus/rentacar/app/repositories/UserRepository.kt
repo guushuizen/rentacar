@@ -88,8 +88,6 @@ class UserRepositoryImpl(
         }
         this.loggedInUser = userResponse.body<UserDTO>()
 
-        adjustHttpClientForAuthenticatedRequests(token)
-
         return body.token
     }
 
@@ -112,17 +110,7 @@ class UserRepositoryImpl(
         if (response.status != HttpStatusCode.OK)
             return
 
-        adjustHttpClientForAuthenticatedRequests(token)
-
         this.loggedInUser = response.body<UserDTO>()
-    }
-
-    private fun adjustHttpClientForAuthenticatedRequests(token: String) {
-        this.httpClient.config {
-            defaultRequest {
-                header("Authorization", "Bearer $token")
-            }
-        }
     }
 
     override suspend fun logout() {

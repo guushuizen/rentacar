@@ -102,12 +102,12 @@ class RegisterViewModel(
         _country.value = country
     }
 
-    fun determineLocation() = viewModelScope.launch { return@launch withContext(Dispatchers.IO) {
+    fun determineLocation() = viewModelScope.launch {
         val coordinates = locationService.getCurrentCoordinates()
-            ?: return@withContext
+            ?: return@launch
 
         val locationInformation = locationService.searchAddressByCoordinates(coordinates)
-            ?: return@withContext
+            ?: return@launch
 
         _streetName.value = locationInformation.address.road
         _houseNumber.value = locationInformation.address.house_number
@@ -120,7 +120,7 @@ class RegisterViewModel(
         coroutineScope {
             snackbarHostState.showSnackbar(message = "De adresgegevens zijn ingevuld.")
         }
-    } }
+    }
 
     private fun validateFields(): Boolean {
         return listOf(

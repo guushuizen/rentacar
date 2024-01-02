@@ -40,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -61,6 +62,7 @@ fun RegisterView(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { viewModel.register() },
+                modifier = Modifier.testTag("registerButton")
             ) {
                 Icon(Icons.Filled.Check, contentDescription = "Registreren")
             }
@@ -103,6 +105,7 @@ fun RegisterView(
                             value = firstName.value,
                             onValueChange = { v -> viewModel.updateFirstName(v) },
                             singleLine = true,
+                            modifier = Modifier.testTag("firstName"),
                             label = { Text(text = "Voornaam") },
                         )
                     }
@@ -116,7 +119,8 @@ fun RegisterView(
                             value = lastName.value,
                             onValueChange = { viewModel.updateLastName(it) },
                             singleLine = true,
-                            label = { Text(text = "Achternaam") }
+                            label = { Text(text = "Achternaam") },
+                            modifier = Modifier.testTag("lastName"),
                         )
                     }
                 }
@@ -126,6 +130,7 @@ fun RegisterView(
                     onValueChange = { viewModel.updateEmailAddress(it) },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .testTag("email")
                         .padding(top = 15.dp),
                     singleLine = true,
                     label = { Text(text = "E-mailadres") }
@@ -136,6 +141,7 @@ fun RegisterView(
                     onValueChange = { viewModel.updatePassword(it) },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .testTag("password")
                         .padding(top = 15.dp),
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
@@ -158,7 +164,8 @@ fun RegisterView(
                 Button(
                     onClick = { launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION) },
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .testTag("determineLocationButton"),
                     contentPadding = PaddingValues(vertical = 10.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.primary)
                 ) {
@@ -283,7 +290,6 @@ fun RegisterView(
                         }
                     }
                 }
-
             }
         }
     }

@@ -88,6 +88,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation(kotlin("test"))
 
+    androidTestImplementation("com.android.support.test.uiautomator:uiautomator-v18:2.1.2")
     androidTestImplementation("org.mockito:mockito-core:5.8.0")
     androidTestImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
     androidTestImplementation("org.mockito:mockito-android:5.8.0")
