@@ -17,12 +17,21 @@ import tech.guus.rentacar.app.repositories.CarRepositoryImpl
 import tech.guus.rentacar.app.repositories.UserRepository
 import tech.guus.rentacar.app.repositories.UserRepositoryImpl
 import tech.guus.rentacar.app.services.LocationService
+import tech.guus.rentacar.app.services.LocationServiceImpl
 
 
 const val BASE_URL = "http://10.0.2.2:8080/"  // `localhost` from the emulator's perspective.
 
 
-class AppContainer(val activity: ComponentActivity) {
+interface AppContainerInterface {
+    val userRepository: UserRepository
+    val carRepository: CarRepository
+    val locationService: LocationService
+}
+
+
+
+class AppContainer(val activity: ComponentActivity) : AppContainerInterface {
 
     private val httpClient = HttpClient(Android) {
         defaultRequest {
@@ -36,14 +45,14 @@ class AppContainer(val activity: ComponentActivity) {
         }
     }
 
-    val userRepository: UserRepository = UserRepositoryImpl(
+    override val userRepository: UserRepository = UserRepositoryImpl(
         httpClient,
         this.activity.applicationContext.dataStore
     )
 
-    val carRepository: CarRepository = CarRepositoryImpl(httpClient, userRepository)
+    override val carRepository: CarRepository = CarRepositoryImpl(httpClient, userRepository)
 
-    val locationService = LocationService(
+    override val locationService = LocationServiceImpl(
         activity = this.activity,
         httpClient = httpClient,
     )

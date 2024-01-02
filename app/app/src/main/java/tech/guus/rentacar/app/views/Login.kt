@@ -30,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -89,6 +90,7 @@ fun LoginView(
                     onValueChange = { viewModel.updateEmail(it) },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .testTag("email")
                         .padding(top = 15.dp),
                     singleLine = true,
                     label = { Text(text = "E-mailadres") }
@@ -101,6 +103,7 @@ fun LoginView(
                     keyboardActions = KeyboardActions(onDone = { viewModel.attemptLogin() }),
                     modifier = Modifier
                         .fillMaxWidth()
+                        .testTag("password")
                         .padding(top = 15.dp),
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
@@ -111,7 +114,8 @@ fun LoginView(
                     onClick = { viewModel.attemptLogin() },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 15.dp),
+                        .padding(top = 15.dp)
+                        .testTag("login-button"),
                     contentPadding = PaddingValues(vertical = 10.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.primary)
                 ) {

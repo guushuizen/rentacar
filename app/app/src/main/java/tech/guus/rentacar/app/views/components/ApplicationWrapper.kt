@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import tech.guus.rentacar.app.models.UserDTO
 import tech.guus.rentacar.app.repositories.UserRepository
 
 
@@ -52,20 +53,17 @@ sealed class Screen(val route: String, val title: String) {
 data class ApplicationData(
     val drawerState: DrawerState,
     val navigationController: NavController,
-    val userRepository: UserRepository,
     val snackbarHostState: SnackbarHostState,
 )
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ApplicationWrapper(
     appData: ApplicationData,
+    userRepository: UserRepository,
     content: @Composable () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-
-    val loggedInUser = appData.userRepository.loggedInUser
 
     return ModalNavigationDrawer(
         drawerState = appData.drawerState,
@@ -91,14 +89,14 @@ fun ApplicationWrapper(
                     }
                 }
 
-                if (loggedInUser != null) {
+                if (userRepository.loggedInUser != null) {
                     Row(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp)
                     ) {
                         Text(
-                            text = "Welkom, ${loggedInUser.firstName}",
+                            text = "Welkom, ${userRepository.loggedInUser!!.firstName}",
                             modifier = Modifier.padding(start = 7.dp)
                         )
                     }
@@ -125,7 +123,7 @@ fun ApplicationWrapper(
                     }
                 )
 
-                if (appData.userRepository.loggedInUser != null) {
+                if (userRepository.loggedInUser != null) {
                     NavigationDrawerItem(
                         label = {
                             Row(
@@ -151,7 +149,7 @@ fun ApplicationWrapper(
                     )
                 }
 
-                if (loggedInUser == null) {
+                if (userRepository.loggedInUser == null) {
                     NavigationDrawerItem(
                         label = {
                             Row(
@@ -211,7 +209,7 @@ fun ApplicationWrapper(
                         selected = appData.navigationController.currentBackStackEntry?.destination?.route == "login",
                         onClick = {
                             coroutineScope.launch {
-                                appData.userRepository.logout()
+                                userRepository.logout()
 
                                 appData.navigationController.navigate(Screen.Cars.route)
 

@@ -51,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -78,7 +79,12 @@ fun CarListView(
             TopAppBar(
                 colors = TopAppBarDefaults.RentACar(),
                 title = {
-                    Text(text = Screen.Cars.title, modifier = Modifier.padding(10.dp))
+                    Text(
+                        text = Screen.Cars.title,
+                        modifier = Modifier
+                            .testTag("home-topbar")
+                            .padding(10.dp)
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { coroutineScope.launch { appData.drawerState.open() } }) {

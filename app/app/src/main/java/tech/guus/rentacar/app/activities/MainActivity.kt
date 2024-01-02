@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -19,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.runBlocking
 import tech.guus.rentacar.app.AppContainer
+import tech.guus.rentacar.app.AppContainerInterface
 import tech.guus.rentacar.app.ui.theme.RentACarTheme
 import tech.guus.rentacar.app.viewmodels.CarDetailViewModel
 import tech.guus.rentacar.app.viewmodels.CarListViewModel
@@ -54,27 +54,34 @@ class MainActivity : ComponentActivity() {
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainComposition(
-    container: AppContainer
+    container: AppContainerInterface,
+    startDestination: String = "cars",
+    content: @Composable ((ApplicationData) -> Unit)? = null,  // Used for UI testing
 ) {
-
     val navController = rememberNavController()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    return NavHost(navController = navController, startDestination = "cars") {
-        val applicationData = ApplicationData(
-            drawerState = drawerState,
-            navigationController = navController,
-            userRepository = container.userRepository,
-            snackbarHostState = snackbarHostState,
-        )
+    val applicationData = ApplicationData(
+        drawerState = drawerState,
+        navigationController = navController,
+        snackbarHostState = snackbarHostState,
+    )
+
+    if (content != null) {
+        ApplicationWrapper(appData = applicationData, userRepository = container.userRepository) {
+            content(applicationData)
+        }
+        return
+    }
+
+    return NavHost(navController = navController, startDestination = startDestination) {
         composable("cars") {
-            ApplicationWrapper(appData = applicationData) {
+            ApplicationWrapper(appData = applicationData, container.userRepository) {
                 CarListView(
                     carListViewModel = CarListViewModel(
                         carRepository = container.carRepository,
@@ -87,7 +94,7 @@ fun MainComposition(
         }
 
         composable(Screen.Login.route) {
-            ApplicationWrapper(appData = applicationData) {
+            ApplicationWrapper(appData = applicationData, container.userRepository) {
                 LoginView(
                     onClickRegistration = { navController.navigate(Screen.Register.route) },
                     appData = applicationData,
@@ -102,12 +109,12 @@ fun MainComposition(
         }
 
         composable(Screen.Register.route) {
-            ApplicationWrapper(appData = applicationData) {
+            ApplicationWrapper(appData = applicationData, container.userRepository) {
                 RegisterView(
                     viewModel = RegisterViewModel(
                         snackbarHostState = applicationData.snackbarHostState,
                         locationService = container.locationService,
-                        userRepository = applicationData.userRepository,
+                        userRepository = container.userRepository,
                         navigationController = applicationData.navigationController,
                     ),
                     appData = applicationData,
@@ -118,7 +125,7 @@ fun MainComposition(
         composable(Screen.CarDetails.route) {
             val carUuid = it.arguments?.getString("carUuid") ?: return@composable
 
-            ApplicationWrapper(appData = applicationData) {
+            ApplicationWrapper(appData = applicationData, container.userRepository) {
                 CarDetailView(
                     viewModel = CarDetailViewModel(
                         carUuid = carUuid,
@@ -135,17 +142,17 @@ fun MainComposition(
         composable(Screen.CarReservation.route) {
             val carUuid = it.arguments?.getString("carUuid") ?: return@composable
 
-                ApplicationWrapper(appData = applicationData) {
-                    CarReservation(
-                        viewModel = CarReservationViewModel(
-                            carUuid = carUuid,
-                            carRepository = container.carRepository,
-                            navigationController = navController,
-                            snackbarHostState = applicationData.snackbarHostState
-                        ),
-                        appData = applicationData
-                    )
-                }
+            ApplicationWrapper(appData = applicationData, container.userRepository) {
+                CarReservation(
+                    viewModel = CarReservationViewModel(
+                        carUuid = carUuid,
+                        carRepository = container.carRepository,
+                        navigationController = navController,
+                        snackbarHostState = applicationData.snackbarHostState
+                    ),
+                    appData = applicationData
+                )
+            }
         }
     }
 }
