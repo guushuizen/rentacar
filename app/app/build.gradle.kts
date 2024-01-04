@@ -50,6 +50,10 @@ android {
 dependencies {
     val nav_version = "2.7.5"
     val ktor_version = "2.3.6"
+    val camerax_version = "1.4.0-alpha03"
+
+    implementation("androidx.camera:camera-camera2:$camerax_version")
+    implementation("androidx.camera:camera-view:$camerax_version")
 
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("androidx.appcompat:appcompat:1.6.1")

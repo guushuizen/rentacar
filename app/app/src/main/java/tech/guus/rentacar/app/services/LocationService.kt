@@ -46,7 +46,6 @@ class LocationServiceImpl(
     }
 
     override suspend fun searchAddressByCoordinates(coordinates: Coordinates): OpenStreetMapLocationInformation? {
-        // https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=51.8449&lon=5.8428&addressdetails=1&zoom=18&layer=address
         val response = this.httpClient.get("https://nominatim.openstreetmap.org/reverse") {
             parameter("format", "jsonv2")
             parameter("lat", coordinates.latitude)

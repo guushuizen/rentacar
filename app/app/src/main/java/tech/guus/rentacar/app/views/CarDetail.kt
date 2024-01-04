@@ -44,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -56,6 +55,7 @@ import tech.guus.rentacar.app.models.DayState
 import tech.guus.rentacar.app.ui.theme.RentACar
 import tech.guus.rentacar.app.viewmodels.CarDetailViewModel
 import tech.guus.rentacar.app.views.components.ApplicationData
+import tech.guus.rentacar.app.views.components.Detail
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -185,15 +185,6 @@ fun CarDetailView(
                 CarDetailAgenda(agenda = listedCar!!.renderAgenda())
             }
         }
-    }
-}
-
-@Composable
-fun Detail(label: String, value: String) {
-    Column {
-        Text(text = label, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-
-        Text(text = value, fontSize = 14.sp)
     }
 }
 

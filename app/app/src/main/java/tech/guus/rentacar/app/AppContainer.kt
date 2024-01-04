@@ -14,6 +14,8 @@ import io.ktor.serialization.jackson.jackson
 import tech.guus.rentacar.app.activities.dataStore
 import tech.guus.rentacar.app.repositories.CarRepository
 import tech.guus.rentacar.app.repositories.CarRepositoryImpl
+import tech.guus.rentacar.app.repositories.MyCarRepository
+import tech.guus.rentacar.app.repositories.MyCarRepositoryImpl
 import tech.guus.rentacar.app.repositories.UserRepository
 import tech.guus.rentacar.app.repositories.UserRepositoryImpl
 import tech.guus.rentacar.app.services.LocationService
@@ -26,9 +28,9 @@ const val BASE_URL = "http://10.0.2.2:8080/"  // `localhost` from the emulator's
 interface AppContainerInterface {
     val userRepository: UserRepository
     val carRepository: CarRepository
+    val myCarRepository: MyCarRepository
     val locationService: LocationService
 }
-
 
 
 class AppContainer(val activity: ComponentActivity) : AppContainerInterface {
@@ -54,6 +56,11 @@ class AppContainer(val activity: ComponentActivity) : AppContainerInterface {
 
     override val locationService = LocationServiceImpl(
         activity = this.activity,
+        httpClient = httpClient,
+    )
+
+    override val myCarRepository: MyCarRepository = MyCarRepositoryImpl(
+        userRepository = userRepository,
         httpClient = httpClient,
     )
 }

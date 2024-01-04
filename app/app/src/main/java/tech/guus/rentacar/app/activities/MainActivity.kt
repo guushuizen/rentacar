@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -23,12 +24,18 @@ import tech.guus.rentacar.app.ui.theme.RentACarTheme
 import tech.guus.rentacar.app.viewmodels.CarDetailViewModel
 import tech.guus.rentacar.app.viewmodels.CarListViewModel
 import tech.guus.rentacar.app.viewmodels.CarReservationViewModel
+import tech.guus.rentacar.app.viewmodels.CreateCarViewModel
+import tech.guus.rentacar.app.viewmodels.EditListingViewModel
 import tech.guus.rentacar.app.viewmodels.LoginViewModel
+import tech.guus.rentacar.app.viewmodels.MyCarListViewModel
 import tech.guus.rentacar.app.viewmodels.RegisterViewModel
 import tech.guus.rentacar.app.views.CarDetailView
 import tech.guus.rentacar.app.views.CarListView
 import tech.guus.rentacar.app.views.CarReservation
+import tech.guus.rentacar.app.views.CreateCarView
+import tech.guus.rentacar.app.views.EditListing
 import tech.guus.rentacar.app.views.LoginView
+import tech.guus.rentacar.app.views.MyCarsView
 import tech.guus.rentacar.app.views.RegisterView
 import tech.guus.rentacar.app.views.components.ApplicationData
 import tech.guus.rentacar.app.views.components.ApplicationWrapper
@@ -83,11 +90,13 @@ fun MainComposition(
         composable("cars") {
             ApplicationWrapper(appData = applicationData, container.userRepository) {
                 CarListView(
-                    carListViewModel = CarListViewModel(
-                        carRepository = container.carRepository,
-                        locationService = container.locationService,
-                        snackbarHostState = applicationData.snackbarHostState,
-                    ),
+                    carListViewModel = viewModel {
+                        CarListViewModel(
+                            carRepository = container.carRepository,
+                            locationService = container.locationService,
+                            snackbarHostState = applicationData.snackbarHostState,
+                        )
+                    },
                     appData = applicationData
                 )
             }
@@ -95,15 +104,18 @@ fun MainComposition(
 
         composable(Screen.Login.route) {
             ApplicationWrapper(appData = applicationData, container.userRepository) {
+                val focusManager = LocalFocusManager.current
                 LoginView(
                     onClickRegistration = { navController.navigate(Screen.Register.route) },
                     appData = applicationData,
-                    viewModel = LoginViewModel(
-                        userRepository = container.userRepository,
-                        navController = navController,
-                        snackbarHostState = applicationData.snackbarHostState,
-                        focusManager = LocalFocusManager.current,
-                    )
+                    viewModel = viewModel {
+                        LoginViewModel(
+                            userRepository = container.userRepository,
+                            navController = navController,
+                            snackbarHostState = applicationData.snackbarHostState,
+                            focusManager = focusManager,
+                        )
+                    }
                 )
             }
         }
@@ -111,12 +123,14 @@ fun MainComposition(
         composable(Screen.Register.route) {
             ApplicationWrapper(appData = applicationData, container.userRepository) {
                 RegisterView(
-                    viewModel = RegisterViewModel(
-                        snackbarHostState = applicationData.snackbarHostState,
-                        locationService = container.locationService,
-                        userRepository = container.userRepository,
-                        navigationController = applicationData.navigationController,
-                    ),
+                    viewModel = viewModel {
+                        RegisterViewModel(
+                            snackbarHostState = applicationData.snackbarHostState,
+                            locationService = container.locationService,
+                            userRepository = container.userRepository,
+                            navigationController = applicationData.navigationController,
+                        )
+                    },
                     appData = applicationData,
                 )
             }
@@ -144,15 +158,67 @@ fun MainComposition(
 
             ApplicationWrapper(appData = applicationData, container.userRepository) {
                 CarReservation(
-                    viewModel = CarReservationViewModel(
-                        carUuid = carUuid,
-                        carRepository = container.carRepository,
-                        navigationController = navController,
-                        snackbarHostState = applicationData.snackbarHostState
-                    ),
+                    viewModel = viewModel {
+                        CarReservationViewModel(
+                            carUuid = carUuid,
+                            carRepository = container.carRepository,
+                            navigationController = navController,
+                            snackbarHostState = applicationData.snackbarHostState
+                        )
+                    },
                     appData = applicationData
                 )
             }
         }
+
+        composable(Screen.MyCars.route) {
+            ApplicationWrapper(appData = applicationData, container.userRepository) {
+                MyCarsView(
+                    myCarListViewModel = viewModel {
+                        MyCarListViewModel(
+                            myCarRepository = container.myCarRepository,
+                            navigationController = navController,
+                            snackbarHostState = applicationData.snackbarHostState,
+                            userRepository = container.userRepository,
+                        )
+                    },
+                    appData = applicationData
+                )
+            }
+        }
+
+        composable(Screen.CreateCar.route) {
+            ApplicationWrapper(appData = applicationData, container.userRepository) {
+                CreateCarView(
+                    viewModel = viewModel {
+                        CreateCarViewModel(
+                            myCarRepository = container.myCarRepository,
+                            navigationController = navController,
+                            snackbarHostState = applicationData.snackbarHostState,
+                        )
+                    },
+                    appData = applicationData
+                )
+            }
+        }
+
+        composable(Screen.EditListing.route) {
+            val carUuid = it.arguments?.getString("carUuid") ?: return@composable
+
+            ApplicationWrapper(appData = applicationData, container.userRepository) {
+                EditListing(
+                    viewModel = viewModel {
+                        EditListingViewModel(
+                            carUuid = carUuid,
+                            myCarRepository = container.myCarRepository,
+                            snackbarHostState = snackbarHostState,
+                            navigationController = navController,
+                        )
+                    },
+                    appData = applicationData
+                )
+            }
+        }
+
     }
 }

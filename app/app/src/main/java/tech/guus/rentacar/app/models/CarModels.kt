@@ -25,6 +25,10 @@ data class ReserveCarResponse(
     val reservedCar: ListedCar
 )
 
+enum class CarStatus(val value: String) {
+    ACTIVE("ACTIVE"), DRAFT("DRAFT")
+}
+
 data class ListedCar(
     val id: UUID,
     val ownerName: String,
@@ -34,7 +38,7 @@ data class ListedCar(
     val color: String,
     val fuelType: String,
     val ratePerHour: Float?,
-    val status: String,
+    val status: CarStatus,
     val locationLatitude: Float,
     val locationLongitude: Float,
     val locationString: String,
