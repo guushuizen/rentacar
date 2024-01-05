@@ -10,7 +10,7 @@ import tech.guus.rentacar.app.views.components.Screen
 
 open class CarDetailViewModel(
     private val carUuid: String,
-    val carRepository: CarRepository,
+    carRepository: CarRepository,
     private val navigationController: NavController,
     private val snackbarHostState: SnackbarHostState,
     private val userRepository: UserRepository,

@@ -1,6 +1,7 @@
 package tech.guus.rentacar.app
 
 import org.junit.Test
+import tech.guus.rentacar.app.models.CarStatus
 import tech.guus.rentacar.app.models.DayInAgenda
 import tech.guus.rentacar.app.models.DayState
 import tech.guus.rentacar.app.models.ListedCar
@@ -22,7 +23,7 @@ class CarModelsTest {
             color = "",
             fuelType = "",
             ratePerHour = 0f,
-            status = "",
+            status = CarStatus.ACTIVE,
             locationLatitude = 0f,
             locationLongitude = 0f,
             locationString = "",
