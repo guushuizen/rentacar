@@ -91,6 +91,9 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
     testImplementation(kotlin("test"))
+    testImplementation("org.mockito:mockito-core:5.8.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    testImplementation("io.ktor:ktor-client-mock:$ktor_version")
 
     androidTestImplementation("com.android.support.test.uiautomator:uiautomator-v18:2.1.2")
     androidTestImplementation("org.mockito:mockito-core:5.8.0")

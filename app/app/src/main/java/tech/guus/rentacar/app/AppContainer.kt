@@ -22,7 +22,7 @@ import tech.guus.rentacar.app.services.LocationService
 import tech.guus.rentacar.app.services.LocationServiceImpl
 
 
-const val BASE_URL = "http://10.0.2.2:8080/"  // `localhost` from the emulator's perspective.
+const val BASE_URL = "http://10.0.2.2:8080"  // `localhost` from the emulator's perspective.
 
 
 interface AppContainerInterface {

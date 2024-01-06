@@ -37,7 +37,7 @@ class CarRepositoryImpl(
 
     private var cars: List<ListedCar> = emptyList()
     override suspend fun getAllCars(filterValues: ChosenFilterValues?): List<ListedCar> {
-        val listResponse: HttpResponse = httpClient.get("${BASE_URL}/cars") {
+        val listResponse: HttpResponse = httpClient.get("cars") {
             if (filterValues != null) {
                 if (filterValues.chosenBrandName != null)
                     parameter("brandName", filterValues.chosenBrandName)
