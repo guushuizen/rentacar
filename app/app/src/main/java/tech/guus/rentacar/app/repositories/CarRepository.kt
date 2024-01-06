@@ -25,8 +25,22 @@ import java.time.format.DateTimeFormatter
 
 abstract class CarRepository {
 
+    /**
+     * Finds a list of cars, optionally filtered by the given filter values.
+     */
     abstract suspend fun getAllCars(filterValues: ChosenFilterValues? = null): List<ListedCar>
+
+    /**
+     * Finds a single car by its UUID.
+     */
     abstract fun getCar(carUuid: String): ListedCar?
+
+    /**
+     * Reserves a car for the currently logged in user from the given start DateTime to the given
+     * end DateTime.
+     *
+     * Returns an error message if the reservation failed, or null if the reservation succeeded.
+     */
     abstract suspend fun reserveCar(carUuid: String, startDateTime: LocalDateTime, endDateTime: LocalDateTime): String?
 }
 

@@ -28,16 +28,37 @@ import java.util.UUID
 
 
 interface MyCarRepository {
+
+    /**
+     * Returns a list of cars that the currently logged in user has listed.
+     */
     suspend fun getCars(): List<ListedCar>
 
+    /**
+     * Creates a new car listing for the currently logged in user and returns the
+     * created car.
+     */
     suspend fun createCar(licensePlate: String): ListedCar
 
+    /**
+     * Finds a car by its UUID and returns the listing or null.
+     */
     fun getCar(uuid: String): ListedCar?
 
+    /**
+     * Loads the car pictures from the given URLs and returns them as a list of URIs
+     * for the view to load as images.
+     */
     suspend fun loadCarPictures(carPictures: List<String>): List<Uri>
 
+    /**
+     * Replaces the car pictures of the given car with the given photos.
+     */
     suspend fun savePhotos(carUUID: UUID, photos: List<Uri>)
 
+    /**
+     * Updates the given car with the given rate per hour and status.
+     */
     suspend fun updateCar(carUUID: UUID, ratePerHour: Float, status: CarStatus)
 }
 

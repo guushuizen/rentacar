@@ -17,7 +17,16 @@ import tech.guus.rentacar.app.models.OpenStreetMapLocationInformation
 
 
 interface LocationService {
+    /**
+     * Returns the current coordinates of the device or null if the user has not
+     * granted the app location permissions.
+     */
     suspend fun getCurrentCoordinates(): Coordinates?
+
+    /**
+     * Searches for humanly-readable address details based on the given coordinates
+     * or returns null if those details can't be found.
+     */
     suspend fun searchAddressByCoordinates(coordinates: Coordinates): OpenStreetMapLocationInformation?
 }
 

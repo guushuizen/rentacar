@@ -43,7 +43,7 @@ data class ListedCar(
     val locationLongitude: Float,
     val locationString: String,
     var photos: List<String>,
-    val reservedDates: List<List<String>>  // Should become datetimes at some point.
+    val reservedDates: List<List<String>>
 ) {
     fun title(): String {
         return "$brandName $modelName"

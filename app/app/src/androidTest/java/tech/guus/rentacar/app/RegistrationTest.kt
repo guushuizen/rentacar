@@ -77,7 +77,7 @@ class RegistrationTest {
     }
 
     @Test
-    fun aaa_testRegistrationSucceedsAndForwardsToCarList() {
+    fun testRegistrationSucceedsAndForwardsToCarList() {
         val coords = Coordinates(0.0, 0.0)
         val locationServiceMock = mock<LocationService> {
             onBlocking { getCurrentCoordinates() }.doReturn(coords)
