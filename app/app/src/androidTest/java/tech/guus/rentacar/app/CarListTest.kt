@@ -14,7 +14,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verifyBlocking
 import tech.guus.rentacar.app.activities.MainComposition
@@ -41,7 +40,6 @@ class CarListTest {
     fun setup() {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     }
-
 
     @Test
     fun testRenderCarList() {

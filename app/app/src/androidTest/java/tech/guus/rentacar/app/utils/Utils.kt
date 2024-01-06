@@ -7,6 +7,7 @@ import tech.guus.rentacar.app.models.CarStatus
 import tech.guus.rentacar.app.models.ListedCar
 import tech.guus.rentacar.app.models.OpenStreetMapLocationAddress
 import tech.guus.rentacar.app.models.OpenStreetMapLocationInformation
+import tech.guus.rentacar.app.models.UserDTO
 import java.util.UUID
 
 
@@ -32,6 +33,21 @@ fun generateDummyCar(
         reservedDates = emptyList(),
     )
 }
+
+
+val LOGGED_IN_USER = UserDTO(
+    uuid = UUID.randomUUID(),
+    firstName = "Guus",
+    lastName = "Huizen",
+    emailAddress = "guus@guus.tech",
+    streetName = "Hogeschoollaan",
+    houseNumber = "1",
+    city = "Breda",
+    postalCode = "4818CR",
+    country = "Nederland",
+    latitude = 51.0F,
+    longitude = 5.0F,
+)
 
 
 val DUMMY_LOCATION = OpenStreetMapLocationInformation(
