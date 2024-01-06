@@ -97,7 +97,10 @@ fun CarListView(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { carListViewModel.updateOpenFilterDialog(true) }) {
+            FloatingActionButton(
+                onClick = { carListViewModel.updateOpenFilterDialog(true) },
+                modifier = Modifier.testTag("filter-button")
+            ) {
                 Icon(Icons.Filled.MoreVert, contentDescription = "Filter")
             }
         }
@@ -187,6 +190,7 @@ fun FilterDialog(viewModel: CarListViewModel) {
                     viewModel.updateOpenFilterDialog(false);
                     viewModel.refreshCarList()
                 },
+                modifier = Modifier.testTag("filter-dialog-confirm"),
                 colors = ButtonDefaults.textButtonColors(contentColor = Purple40)
             ) {
                 Text(text = "Filteren", color = Purple40, fontWeight = FontWeight.SemiBold)
@@ -197,6 +201,7 @@ fun FilterDialog(viewModel: CarListViewModel) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .testTag("filter-dialog")
             ) {
 
                 val chosenFilterValues by viewModel.chosenFilterValues.collectAsState()
@@ -211,13 +216,13 @@ fun FilterDialog(viewModel: CarListViewModel) {
                         value = chosenFilterValues.chosenBrandName ?: "Geen",
                         onValueChange = { },
                         label = { Text("Merk") },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().testTag("brand-filter"),
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(
                                 expanded = brandNameDropdownExpanded
                             )
                         },
-                        colors = ExposedDropdownMenuDefaults.textFieldColors()
+                        colors = ExposedDropdownMenuDefaults.textFieldColors(),
                     )
                     ExposedDropdownMenu(
                         expanded = brandNameDropdownExpanded,
@@ -257,7 +262,8 @@ fun FilterDialog(viewModel: CarListViewModel) {
                         label = { Text("Model") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 10.dp),
+                            .padding(top = 10.dp)
+                            .testTag("model-filter"),
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(
                                 expanded = modelNameDropdownExpanded
@@ -312,7 +318,7 @@ fun FilterDialog(viewModel: CarListViewModel) {
                 if (currentLocationString == "") {
                     TextButton(
                         onClick = { launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().testTag("determine-location"),
                         enabled = loadingLocation.not()
                     ) {
                         Text(
@@ -350,7 +356,8 @@ fun FilterDialog(viewModel: CarListViewModel) {
                         onValueChange = { viewModel.updateChosenRadius(it) },
                         enabled = true,
                         valueRange = 0F..250F,
-                        steps = 250
+                        steps = 250,
+                        modifier = Modifier.testTag("location-range-slider")
                     )
                     Text(
                         text = "${chosenFilterValues.chosenRadius ?: 0} km",

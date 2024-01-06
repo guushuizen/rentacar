@@ -30,6 +30,7 @@ import tech.guus.rentacar.app.repositories.CarRepository
 import tech.guus.rentacar.app.repositories.UserRepository
 import tech.guus.rentacar.app.services.LocationService
 import tech.guus.rentacar.app.ui.theme.RentACarTheme
+import tech.guus.rentacar.app.utils.DUMMY_LOCATION
 import tech.guus.rentacar.app.utils.DummyAppContainer
 import tech.guus.rentacar.app.utils.generateDummyCar
 import tech.guus.rentacar.app.utils.grantPermission
@@ -40,20 +41,6 @@ import java.util.UUID
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class RegistrationTest {
-
-
-    private val location = OpenStreetMapLocationInformation(
-        place_id = "123",
-        lat = 0.0,
-        0.0,
-        OpenStreetMapLocationAddress(
-            road = "Hogeschoollaan",
-            house_number = "1",
-            city = "Breda",
-            postcode = "4818CR",
-            country_code = "NL"
-        )
-    )
 
 
     @get:Rule
@@ -70,7 +57,7 @@ class RegistrationTest {
     fun testRegistrationValidatesAllFieldsFilledIn() {
         composeTestRule.setContent {
             RentACarTheme {
-                MainComposition(DummyAppContainer(mock(), mock(), mock())) {
+                MainComposition(DummyAppContainer(mock(), mock(), mock(), mock())) {
                     RegisterView(
                         appData = it,
                         viewModel = RegisterViewModel(
@@ -89,17 +76,12 @@ class RegistrationTest {
         composeTestRule.onNodeWithText("Niet alle velden zijn juist ingevuld!").assertExists()
     }
 
-    /***
-     * This test has to be ran first, because of a weird issue with the permissions needed to
-     * be granted in order for the GPS location service to work, hence the `aaa_` prefix and the
-     * `FixMethodOrder(MethodSorters.NAME_ASCENDING)` annotation.
-     */
     @Test
     fun aaa_testRegistrationSucceedsAndForwardsToCarList() {
         val coords = Coordinates(0.0, 0.0)
         val locationServiceMock = mock<LocationService> {
             onBlocking { getCurrentCoordinates() }.doReturn(coords)
-            onBlocking { searchAddressByCoordinates(coords) }.doReturn(location)
+            onBlocking { searchAddressByCoordinates(coords) }.doReturn(DUMMY_LOCATION)
         }
 
         val userRepositoryMock = mock<UserRepository> {
@@ -114,7 +96,8 @@ class RegistrationTest {
         val appContainer = DummyAppContainer(
             userRepository = userRepositoryMock,
             locationService = locationServiceMock,
-            carRepository = carRepositoryMock
+            carRepository = carRepositoryMock,
+            myCarRepository = mock()
         )
 
         composeTestRule.setContent {

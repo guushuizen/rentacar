@@ -31,7 +31,7 @@ class LoginTest {
 
     @Test
     fun testLoginRenders() {
-        val appContainer = DummyAppContainer(mock(), mock(), mock())
+        val appContainer = DummyAppContainer(mock(), mock(), mock(), mock())
 
         composeTestRule.setContent {
             RentACarTheme {
@@ -62,7 +62,7 @@ class LoginTest {
         val userRepositoryMock = mock<UserRepository> {
             onBlocking { login(any(), any()) } doReturn null
         }
-        val appContainer = DummyAppContainer(userRepositoryMock, mock(), mock())
+        val appContainer = DummyAppContainer(userRepositoryMock, mock(), mock(), mock())
 
         composeTestRule.setContent {
             RentACarTheme {
@@ -110,7 +110,7 @@ class LoginTest {
         val carRepositoryMock = mock<CarRepository> {
             onBlocking { getAllCars(any()) } doReturn listOf(generateDummyCar())
         }
-        val appContainer = DummyAppContainer(userRepositoryMock, carRepositoryMock, mock())
+        val appContainer = DummyAppContainer(userRepositoryMock, carRepositoryMock, mock(), mock())
 
         composeTestRule.setContent {
             RentACarTheme {
