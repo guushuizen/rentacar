@@ -39,7 +39,6 @@ class CarReservationTest {
 
     @Test
     fun testReserveCar() {
-        val now = LocalDateTime.now()
         val car = generateDummyCar()
         val carRepositoryMock = mock<CarRepository> {
             onBlocking { getAllCars(any()) } doReturn listOf(
@@ -78,6 +77,7 @@ class CarReservationTest {
         composeTestRule.onNodeWithContentDescription("Reserveren").performClick()
         composeTestRule.onNodeWithText("Onbekende fout").assertExists()
 
+        val now = LocalDateTime.now()
         composeTestRule.onNodeWithContentDescription("Reserveren").performClick()
 
         // Assert we're back on the detail page.

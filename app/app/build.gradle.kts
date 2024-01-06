@@ -48,7 +48,6 @@ android {
 }
 
 dependencies {
-    implementation("androidx.test:monitor:1.6.1")
     val nav_version = "2.7.5"
     val ktor_version = "2.3.6"
     val camerax_version = "1.4.0-alpha03"
