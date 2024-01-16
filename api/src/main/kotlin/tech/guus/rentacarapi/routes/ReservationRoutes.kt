@@ -1,5 +1,6 @@
 package tech.guus.rentacarapi.routes
 
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -41,13 +42,14 @@ fun Route.reservationRoutes() {
             )
 
         val conflictingReservations = transaction {
-            return@transaction car.reservations.any {
-                it.startDateTimeUtc.toInstant(ZoneOffset.UTC) <= requestBody.startDateTime
-                        || requestBody.endDateTime <= it.endDateTimeUtc.toInstant(ZoneOffset.UTC)
-            }
+             return@transaction Reservation.find {
+                (Reservations.carUuid eq car.id) and
+                (Reservations.startDateTimeUtc lessEq LocalDateTime.ofInstant(requestBody.startDateTime, ZoneOffset.UTC)) and
+                (Reservations.endDateTimeUtc greaterEq LocalDateTime.ofInstant(requestBody.endDateTime, ZoneOffset.UTC))
+            }.toList()
         }
 
-        if (conflictingReservations) {
+        if (conflictingReservations.isNotEmpty()) {
             return@post call.respond(
                 HttpStatusCode.Conflict,
                 "You can't reserve the car at these dates as there's a conflicting reservation"
